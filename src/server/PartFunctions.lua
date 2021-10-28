@@ -3,6 +3,7 @@
 local playerService = game:GetService("Players")
 local badgeService = game:GetService("BadgeService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
+local marketService = game:GetService("MarketplaceService")
 local dataMod = require(script.Parent.Data)
 local partFunctionsMod = {}
 local partGroups = {
@@ -10,7 +11,15 @@ local partGroups = {
     workspace.DamageParts;
     workspace.SpawnParts;
     workspace.RewardParts;
+    workspace.PurchaseParts;
+    workspace.ShopParts;
 }
+local items = {
+    ["Spring Potion"] = {
+        Price = 5;
+    };
+}
+
 local uniqueCode = 0
 
 partFunctionsMod.playerFromHit = function(hit)
@@ -68,11 +77,8 @@ partFunctionsMod.SpawnParts = function(part)
 end
 
 partFunctionsMod.RewardParts = function(part)
-    -- get the number of coins that should be awarded from the part's attribute "Reward"
-    -- then make a unique code for the coin so one cannot be collected more than once
-    -- when touched, check for a CoinTags folder on the player, create if it doesn't
+    -- when touched, check for a CoinTags folder on the player, create if nil
     -- if the coin has not been collected before, award the coin
-    -- this will allow coins to be collected multiple times on exit/entry of change - CHANGE THIS
     local reward = part:GetAttribute("Reward")   -- changed from part.Reward.Value to part:GetAttribute("Value")
     local code = uniqueCode
     uniqueCode = uniqueCode + 1
@@ -112,6 +118,42 @@ partFunctionsMod.BadgeParts = function(part)
             if not hasBadge then
                 badgeService:AwardBadge(key, badgeId)
             end
+        end
+    end)
+end
+
+partFunctionsMod.PurchaseParts = function(part)
+    -- open prompt for purchase when part is touched
+    local promptId = part:GetAttribute("PromptId")
+    local isProduct = part:GetAttribute("IsProduct")
+
+    part.Touched:Connect(function(hit)
+        local player = partFunctionsMod.playerFromHit(hit)
+        if player then
+            if isProduct then
+                marketService:PromptProductPurchase(player, promptId)
+            else
+                marketService:PromptGamePassPurchase(player, promptId)
+            end
+        end
+    end)
+end
+
+partFunctionsMod.ShopParts = function(part)
+    -- on touch, check if player has enough coins, if so, give them the item
+    local itemName = part.Name
+    local item = items[itemName]
+
+    part.Touched:Connect(function(hit)
+        local player = partFunctionsMod.playerFromHit(hit)
+        print(dataMod.get(player, "Coins"))
+    
+        if player and dataMod.get(player, "Coins") >= item.Price then
+            dataMod.increment(player, "Coins", - item.Price)
+            local shopFolder = replicatedStorage.ShopItems
+            local tool = shopFolder:FindFirstChild(itemName):Clone()
+
+            tool.Parent = player.Backpack
         end
     end)
 end
