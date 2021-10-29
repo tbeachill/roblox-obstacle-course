@@ -72,6 +72,12 @@ partFunctionsMod.SpawnParts = function(part)
     local player, char = partFunctionsMod.playerFromHit(hit)
         if player and dataMod.get(player, "Stage") == stage - 1 then
             dataMod.set(player, "Stage", stage)
+
+            -- set the spawn location of the player to the checkpoint
+            local humanoid = char:FindFirstChildOfClass("Humanoid")
+            if humanoid and humanoid:GetState() ~= Enum.HumanoidStateType.Dead then
+                player.RespawnLocation = part
+            end
         end
     end)
 end
@@ -143,14 +149,14 @@ partFunctionsMod.ShopParts = function(part)
     -- on touch, check if player has enough coins, if so, give them the item
     local itemName = part.Name
     local item = items[itemName]
-
+    print(item)
     part.Touched:Connect(function(hit)
         local player = partFunctionsMod.playerFromHit(hit)
         print(dataMod.get(player, "Coins"))
     
         if player and dataMod.get(player, "Coins") >= item.Price then
             dataMod.increment(player, "Coins", - item.Price)
-            local shopFolder = replicatedStorage.ShopItems
+            local shopFolder = replicatedStorage.Common.ShopItems
             local tool = shopFolder:FindFirstChild(itemName):Clone()
 
             tool.Parent = player.Backpack
@@ -164,6 +170,12 @@ for _, group in pairs(partGroups) do
     for _, part in pairs(group:GetChildren()) do
         if part:IsA("BasePart") then
             partFunctionsMod[group.Name](part)
+        end
+        if group == workspace.RewardParts then
+            -- if rewards then also apply the the coins subfolder
+            for _, part in pairs(group.Coins:GetChildren()) do
+                partFunctionsMod[group.Name](part)
+            end
         end
     end
 end

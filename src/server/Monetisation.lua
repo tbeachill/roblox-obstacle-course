@@ -6,7 +6,7 @@ local collectionService = game:GetService("CollectionService")
 local insertService = game:GetService("InsertService")
 local marketService = game:GetService("MarketplaceService")
 local dataMod = require(script.Parent.Data)
---local PurchaseHistory = dataService:GetDataStore("PurchaseHistory")
+local PurchaseHistory = dataService:GetDataStore("PurchaseHistory")
 local monetisationMod = {}
 
 monetisationMod.insertTool = function(player, assetId)

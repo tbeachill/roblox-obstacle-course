@@ -3,7 +3,7 @@
 
 local playerService = game:GetService("Players")
 local dataService = game:GetService("DataStoreService")     -- used to save data to Roblox servers
---local store = dataService:GetDataStore("DataStoreV1")   -- create a new GlobalDataStore instance, this is persistent with the key
+local store = dataService:GetDataStore("DataStoreV1_1")   -- create a new GlobalDataStore instance, this is persistent with the key
 
 local sessionData = {}  -- holds a dictionary containing data on current players with UserIds as indices
 local dataMod = {}
@@ -32,7 +32,7 @@ local defaultData = {
 
 dataMod.load = function(player)
 -- get player data using their player id as a key
---[[
+
     local key = player.UserId
     local data
 
@@ -44,8 +44,8 @@ dataMod.load = function(player)
     if not success then
         data = dataMod.load(player)
     end
-]]
-    local data = nil
+
+    --local data = nil
     return data
 end
 
@@ -58,8 +58,7 @@ dataMod.setupData = function(player)
 
     if data then    -- if there is stored data for the player
         for index, value in pairs(data) do  -- load the stored data
-            dataMod.set()
-            print(index, value)
+            print(player, index, value)
             dataMod.set(player, index, value)
         end
 
@@ -86,6 +85,19 @@ playerService.PlayerAdded:Connect(function(player)
     stage.Value = defaultData.Stage
 
     dataMod.setupData(player)   -- load stored data
+
+    -- set up spawn location for a player based on their current stage
+    local playerStage = dataMod.get(player, "Stage")
+    if playerStage then
+        for _, descendant in pairs(workspace.SpawnParts:GetDescendants()) do
+            if playerStage == descendant:GetAttribute("Stage") then
+                player.RespawnLocation = descendant
+            end
+        end
+    else
+        player.RespawnLocation = workspace.SpawnParts.Stage1
+    end
+    
 end)
 
 dataMod.set = function(player, stat, value)
