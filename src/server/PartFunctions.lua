@@ -11,6 +11,7 @@ local partGroups = {
     workspace.DamageParts;
     workspace.SpawnParts;
     workspace.RewardParts;
+    workspace.StairParts;
     workspace.PurchaseParts;
     workspace.ShopParts;
 }
@@ -72,6 +73,7 @@ partFunctionsMod.SpawnParts = function(part)
     local player, char = partFunctionsMod.playerFromHit(hit)
         if player and dataMod.get(player, "Stage") == stage - 1 then
             dataMod.set(player, "Stage", stage)
+            replicatedStorage.Effect:FireClient(player, part)
 
             -- set the spawn location of the player to the checkpoint
             local humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -105,6 +107,8 @@ partFunctionsMod.RewardParts = function(part)
                 local codeTag = Instance.new("BoolValue")
                 codeTag.Name = code
                 codeTag.Parent = tagFolder
+
+                replicatedStorage.Effect:FireClient(player, part)
             end
         end
     end)
@@ -161,6 +165,14 @@ partFunctionsMod.ShopParts = function(part)
 
             tool.Parent = player.Backpack
         end
+    end)
+end
+
+partFunctionsMod.StairParts = function(part)
+    -- fire effect event on touch
+    part.Touched:Connect(function(hit)
+        local player = partFunctionsMod.playerFromHit(hit)
+        replicatedStorage.Effect:FireClient(player, part)
     end)
 end
 
