@@ -3,6 +3,7 @@
 local playerService = game:GetService("Players")
 local badgeService = game:GetService("BadgeService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 local marketService = game:GetService("MarketplaceService")
 local dataMod = require(script.Parent.Data)
 local partFunctionsMod = {}
@@ -191,5 +192,7 @@ for _, group in pairs(partGroups) do
         end
     end
 end
+
+
 
 return partFunctionsMod

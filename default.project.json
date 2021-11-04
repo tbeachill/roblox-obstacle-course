@@ -29,6 +29,13 @@
       }
       
     },
+
+    "StarterGui": {
+      "Gui": {
+        "$path": "src/gui"
+      }
+    },
+
     "Lighting": {
       "$properties": {
         "Ambient": [
