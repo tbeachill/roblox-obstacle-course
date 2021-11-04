@@ -5,13 +5,32 @@ local dataService = game:GetService("DataStoreService")
 local collectionService = game:GetService("CollectionService")
 local insertService = game:GetService("InsertService")
 local marketService = game:GetService("MarketplaceService")
+local StarterGui = game:GetService("StarterGui")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local dataMod = require(script.Parent.Data)
 local PurchaseHistory = dataService:GetDataStore("PurchaseHistory")
 local monetisationMod = {}
+local items = {
+    ["Spring Potion"] = {
+        Price = 5;
+    };
+}
 
 replicatedStorage.Purchase.OnServerEvent:Connect(function(player, promptId)
     marketService:PromptProductPurchase(player, promptId)
+end)
+
+replicatedStorage.CoinPurchase.OnServerEvent:Connect(function(player, itemName)
+    local item = items[itemName]
+
+    if player and dataMod.get(player, "Coins") >= item.Price then
+        dataMod.increment(player, "Coins", - item.Price)
+        local shopFolder = replicatedStorage.Common.ShopItems
+        local tool = shopFolder:FindFirstChild(itemName):Clone()
+        tool.Parent = player.Backpack
+    else
+        print("not enough")
+    end
 end)
 
 

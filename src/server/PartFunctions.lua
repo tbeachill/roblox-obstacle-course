@@ -158,7 +158,7 @@ partFunctionsMod.ShopParts = function(part)
     part.Touched:Connect(function(hit)
         local player = partFunctionsMod.playerFromHit(hit)
         print(dataMod.get(player, "Coins"))
-    
+        
         if player and dataMod.get(player, "Coins") >= item.Price then
             dataMod.increment(player, "Coins", - item.Price)
             local shopFolder = replicatedStorage.Common.ShopItems

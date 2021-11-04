@@ -23,7 +23,7 @@ mouse.Button1Down:Connect(function()
 		clicked = true
 		char.Humanoid.JumpPower = JUMP_POWER
 		
-		delay(30, function()
+		delay(20, function()
 			char.Humanoid.JumpPower = 50
 			tool:Destroy()
 		end)
