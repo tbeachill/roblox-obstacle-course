@@ -92,6 +92,7 @@ end
 
 local runService = game:GetService("RunService")
 local rotParts = {}
+local moveParts = {}
 
 local partGroups = {
 	workspace.KillParts;
@@ -103,18 +104,25 @@ local partGroups = {
 	workspace.BadgeParts;
 	workspace.PurchaseParts;
 	workspace.ShopParts;
+    workspace.MoveParts;
 }
 
 for _, group in pairs(partGroups) do
-    -- create a table of parts to be rotated
+    -- create a table of parts to be rotated or moved
 	for _, part in pairs(group:GetChildren()) do
 		if part:IsA("BasePart") or part:IsA("UnionOperation") then
 			if part:FindFirstChild("Rotate") then
 				table.insert(rotParts, part)
-			end
+
+            else 
+                if part:FindFirstChild("Move") then
+                    table.insert(moveParts, part)
+                end
+            end
 		end
 	end
 end
+
 
 runService.RenderStepped:Connect(function(dt)
     -- rotate parts in the table
@@ -126,8 +134,7 @@ runService.RenderStepped:Connect(function(dt)
 		
 		part.CFrame = part.CFrame * rot
 	end
-
-    
 end)
+
 
 return effectsMod

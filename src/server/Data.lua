@@ -45,7 +45,7 @@ dataMod.load = function(player)
         data = dataMod.load(player)
     end
 
-    local data = nil
+    --local data = nil
     return data
 end
 

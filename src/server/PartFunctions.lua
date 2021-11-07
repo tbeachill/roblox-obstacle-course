@@ -5,6 +5,7 @@ local badgeService = game:GetService("BadgeService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local marketService = game:GetService("MarketplaceService")
+local TweenService = game:GetService("TweenService")
 local dataMod = require(script.Parent.Data)
 local partFunctionsMod = {}
 local partGroups = {
@@ -15,6 +16,7 @@ local partGroups = {
     workspace.StairParts;
     workspace.PurchaseParts;
     workspace.ShopParts;
+    workspace.MoveParts;
 }
 local items = {
     ["Spring Potion"] = {
@@ -176,6 +178,37 @@ partFunctionsMod.StairParts = function(part)
         replicatedStorage.Effect:FireClient(player, part)
     end)
 end
+
+partFunctionsMod.MoveParts = function(part)
+    -- move parts by a specified distance and direction
+    local gyroTween = TweenService:Create(
+	    part.BodyGyro,
+	    TweenInfo.new(5, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true, 1),
+	    {CFrame = CFrame.new(0,0,0)}
+    )
+
+    local moveDis = part:GetAttribute("Distance")
+    local tweenLen = part:GetAttribute("Time")
+    local dirDict = {
+        ["F"] = Vector3.new(moveDis,0,0),
+        ["B"] = Vector3.new(-moveDis,0,0),
+        ["L"] = Vector3.new(0,0,moveDis),
+        ["R"] = Vector3.new(0,0,-moveDis),
+        ["U"] = Vector3.new(0,moveDis,0),
+        ["D"] = Vector3.new(0,-moveDis,0), 
+    }
+    
+    local moveTween = TweenService:Create(
+        part.BodyPosition,
+        TweenInfo.new(tweenLen, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true, 1),
+        {Position = part.BodyPosition.Position + dirDict[part:GetAttribute("Direction")] }
+    )
+
+gyroTween:Play()
+moveTween:Play()
+end
+
+
 
 for _, group in pairs(partGroups) do
     -- call the function with the same name as each folder and pass along
