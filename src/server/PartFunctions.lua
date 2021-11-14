@@ -84,6 +84,9 @@ partFunctionsMod.SpawnParts = function(part)
             if humanoid and humanoid:GetState() ~= Enum.HumanoidStateType.Dead then
                 player.RespawnLocation = part
             end
+
+            -- set the number of deaths on the stage to 0
+            dataMod.set(player, "StageDeaths", 0)
         end
     end)
 end

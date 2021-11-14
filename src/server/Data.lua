@@ -2,8 +2,9 @@
 -- uncomment code when published
 
 local playerService = game:GetService("Players")
+local replicatedStorage = game:GetService("ReplicatedStorage")
 local dataService = game:GetService("DataStoreService")     -- used to save data to Roblox servers
-local store = dataService:GetDataStore("DataStoreV1_3")   -- create a new GlobalDataStore instance, this is persistent with the key
+local store = dataService:GetDataStore("DataStoreV1_47")   -- create a new GlobalDataStore instance, this is persistent with the key
 
 local sessionData = {}  -- holds a dictionary containing data on current players with UserIds as indices
 local dataMod = {}
@@ -29,6 +30,7 @@ local defaultData = {
     Coins = 0,
     Stage = 1,
     Deaths = 0,
+    StageDeaths = 0,
 }
 
 dataMod.load = function(player)
@@ -90,6 +92,14 @@ playerService.PlayerAdded:Connect(function(player)
     deaths.Parent = folder
     deaths.Value = defaultData.Deaths
 
+    local hiddenData = Instance.new("Configuration",player)
+	hiddenData.Name = 'HiddenData'
+
+    local deathsOnStage = Instance.new("IntValue")
+    deathsOnStage.Name = "StageDeaths"
+    deathsOnStage.Parent = hiddenData
+    deathsOnStage.Value = defaultData.StageDeaths
+
     dataMod.setupData(player)   -- load stored data
 
     -- set up spawn location for a player based on their current stage
@@ -108,24 +118,37 @@ playerService.PlayerAdded:Connect(function(player)
         -- Detect when a player dies and increase their death count
 		character:WaitForChild("Humanoid").Died:Connect(function()
 			dataMod.increment(player, "Deaths", 1)
+            dataMod.increment(player, "StageDeaths", 1)
+
+            if dataMod.get(player, "StageDeaths") == 3 then
+                -- fire event to prompt to skip stage
+                wait(2)
+                replicatedStorage.PromptSkip:FireClient(player)
+            end
 		end)
     end)
-    
 end)
 
 dataMod.set = function(player, stat, value)
     -- set [stat] for [player] to [value] in sessionData
     local key = player.UserId
     sessionData[key][stat] = value
-    player.leaderstats[stat].Value = value
-    
+    if stat == "Stage" or stat == "Deaths" or stat == "Coins" then -- if stat belongs in leaderstats
+        player.leaderstats[stat].Value = value
+    else    
+        player.HiddenData[stat].Value = value
+    end
 end
 
 dataMod.increment = function(player, stat, value)
     -- increment [stat] for [player] by [value] in sessionData
     local key = player.UserId
     sessionData[key][stat] = dataMod.get(player, stat) + value
-    player.leaderstats[stat].Value = dataMod.get(player, stat)
+    if stat == "Stage" or stat == "Deaths" or stat == "Coins" then  -- if stat belongs in leaderstats
+        player.leaderstats[stat].Value = dataMod.get(player, stat)
+    else
+        player.HiddenData[stat].Value = dataMod.get(player, stat)
+    end
 end
 
 dataMod.get = function(player, stat)
