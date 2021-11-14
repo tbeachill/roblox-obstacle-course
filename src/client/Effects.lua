@@ -123,6 +123,38 @@ for _, group in pairs(partGroups) do
 	end
 end
 
+replicatedStorage.Effect.OnClientEvent:Connect(function(part)
+    -- Animate shop button
+    wait(4)
+    local player = game.Players.LocalPlayer
+    local shopButton = player.PlayerGui.Gui.ButtonGui.OpenShop
+
+    local goal = {}
+    goal.Rotation = 10
+    goal.Size = UDim2.new(0.055, 0, 0.055, 0)
+    local tweenInfo = TweenInfo.new(0.25)
+    local tween = TweenService:Create(shopButton, tweenInfo, goal)
+    tween:Play()
+
+    wait(0.25)
+
+    local goal = {}
+    goal.Rotation = -10
+    local tweenInfo = TweenInfo.new(0.25)
+    local tween = TweenService:Create(shopButton, tweenInfo, goal)
+    tween:Play()
+
+    wait(0.25)
+
+    local goal = {}
+    goal.Rotation = 0
+    goal.Size = UDim2.new(0.05, 0, 0.05, 0)
+    local tweenInfo = TweenInfo.new(0.25)
+    local tween = TweenService:Create(shopButton, tweenInfo, goal)
+    tween:Play()
+
+end)
+
 
 runService.RenderStepped:Connect(function(dt)
     -- rotate parts in the table
