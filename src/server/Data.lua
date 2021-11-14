@@ -205,6 +205,6 @@ local function autoSave()
     end
 end
 
---spawn(autoSave) -- initialise autosave loop
+spawn(autoSave) -- initialise autosave loop
 
 return dataMod

@@ -54,7 +54,7 @@ effectsMod.SpawnParts = function(part)
 
     -- Update stage text
     local player = game.Players.LocalPlayer
-    local stageText = player.PlayerGui.Gui.StageText
+    local stageText = player.PlayerGui.Gui.StageAnnounce
 
     -- animate stage text when updated
     local goal = {}
@@ -71,7 +71,7 @@ effectsMod.SpawnParts = function(part)
     tween:Play()
     
 
-    delay(2, function()
+    delay(2.5, function()
         part.Material = Enum.Material.SmoothPlastic
         stageText.StageNumber.TextTransparency = 100
         stageText.StageTitle.TextTransparency = 100
