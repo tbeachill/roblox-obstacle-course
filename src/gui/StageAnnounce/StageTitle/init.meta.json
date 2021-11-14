@@ -1,0 +1,16 @@
+{
+    "className": "TextLabel",
+    "properties": {
+        "SizeConstraint": "RelativeXX",
+        "Size": [0.1,0,0.005,0],
+        "Position": [0.5,0,0.05,0],
+        "BorderSizePixel": 5,
+        "BackgroundTransparency": 1,
+        "TextColor3": [255, 255, 255],
+        "TextSize": 70,
+        "TextStrokeTransparency": 0,
+        "TextTransparency":1,
+        "Font": "FredokaOne",
+        "Text": "Stage"
+    }
+}

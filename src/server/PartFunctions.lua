@@ -3,7 +3,9 @@
 local playerService = game:GetService("Players")
 local badgeService = game:GetService("BadgeService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 local marketService = game:GetService("MarketplaceService")
+local TweenService = game:GetService("TweenService")
 local dataMod = require(script.Parent.Data)
 local partFunctionsMod = {}
 local partGroups = {
@@ -11,8 +13,11 @@ local partGroups = {
     workspace.DamageParts;
     workspace.SpawnParts;
     workspace.RewardParts;
+    workspace.StairParts;
     workspace.PurchaseParts;
     workspace.ShopParts;
+    workspace.MoveParts;
+    workspace.SwingParts;
 }
 local items = {
     ["Spring Potion"] = {
@@ -72,6 +77,16 @@ partFunctionsMod.SpawnParts = function(part)
     local player, char = partFunctionsMod.playerFromHit(hit)
         if player and dataMod.get(player, "Stage") == stage - 1 then
             dataMod.set(player, "Stage", stage)
+            replicatedStorage.Effect:FireClient(player, part)
+
+            -- set the spawn location of the player to the checkpoint
+            local humanoid = char:FindFirstChildOfClass("Humanoid")
+            if humanoid and humanoid:GetState() ~= Enum.HumanoidStateType.Dead then
+                player.RespawnLocation = part
+            end
+
+            -- set the number of deaths on the stage to 0
+            dataMod.set(player, "StageDeaths", 0)
         end
     end)
 end
@@ -99,6 +114,8 @@ partFunctionsMod.RewardParts = function(part)
                 local codeTag = Instance.new("BoolValue")
                 codeTag.Name = code
                 codeTag.Parent = tagFolder
+
+                replicatedStorage.Effect:FireClient(player, part)
             end
         end
     end)
@@ -143,19 +160,56 @@ partFunctionsMod.ShopParts = function(part)
     -- on touch, check if player has enough coins, if so, give them the item
     local itemName = part.Name
     local item = items[itemName]
-
+    print(item)
     part.Touched:Connect(function(hit)
         local player = partFunctionsMod.playerFromHit(hit)
         print(dataMod.get(player, "Coins"))
-    
+        
         if player and dataMod.get(player, "Coins") >= item.Price then
             dataMod.increment(player, "Coins", - item.Price)
-            local shopFolder = replicatedStorage.ShopItems
+            local shopFolder = replicatedStorage.Common.ShopItems
             local tool = shopFolder:FindFirstChild(itemName):Clone()
 
             tool.Parent = player.Backpack
         end
     end)
+end
+
+partFunctionsMod.StairParts = function(part)
+    -- fire effect event on touch
+    part.Touched:Connect(function(hit)
+        local player = partFunctionsMod.playerFromHit(hit)
+        replicatedStorage.Effect:FireClient(player, part)
+    end)
+end
+
+partFunctionsMod.MoveParts = function(part)
+    -- move parts by a specified distance and direction
+    local gyroTween = TweenService:Create(
+	    part.BodyGyro,
+	    TweenInfo.new(5, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true, 1),
+	    {CFrame = CFrame.new(0,0,0)}
+    )
+
+    local moveDis = part:GetAttribute("Distance")
+    local tweenLen = part:GetAttribute("Time")
+    local dirDict = {
+        ["F"] = Vector3.new(moveDis,0,0),
+        ["B"] = Vector3.new(-moveDis,0,0),
+        ["L"] = Vector3.new(0,0,moveDis),
+        ["R"] = Vector3.new(0,0,-moveDis),
+        ["U"] = Vector3.new(0,moveDis,0),
+        ["D"] = Vector3.new(0,-moveDis,0), 
+    }
+    
+    local moveTween = TweenService:Create(
+        part.BodyPosition,
+        TweenInfo.new(tweenLen, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true, 1),
+        {Position = part.BodyPosition.Position + dirDict[part:GetAttribute("Direction")] }
+    )
+
+gyroTween:Play()
+moveTween:Play()
 end
 
 for _, group in pairs(partGroups) do
@@ -165,7 +219,15 @@ for _, group in pairs(partGroups) do
         if part:IsA("BasePart") then
             partFunctionsMod[group.Name](part)
         end
+        if group == workspace.RewardParts then
+            -- if rewards then also apply the the coins subfolder
+            for _, part in pairs(group.Coins:GetChildren()) do
+                partFunctionsMod[group.Name](part)
+            end
+        end
     end
 end
+
+
 
 return partFunctionsMod

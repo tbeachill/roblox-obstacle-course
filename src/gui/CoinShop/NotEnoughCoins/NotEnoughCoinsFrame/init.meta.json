@@ -1,0 +1,9 @@
+{
+    "className": "Frame",
+    "properties": {
+        "SizeConstraint": "RelativeXX",
+        "Size": [0.25,0,0.15,0],
+        "Position": [0.375,0,0.3,0],
+        "Style": "RobloxRound"
+    }
+}

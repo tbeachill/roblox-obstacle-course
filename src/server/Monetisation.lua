@@ -5,9 +5,35 @@ local dataService = game:GetService("DataStoreService")
 local collectionService = game:GetService("CollectionService")
 local insertService = game:GetService("InsertService")
 local marketService = game:GetService("MarketplaceService")
+local StarterGui = game:GetService("StarterGui")
+local replicatedStorage = game:GetService("ReplicatedStorage")
 local dataMod = require(script.Parent.Data)
---local PurchaseHistory = dataService:GetDataStore("PurchaseHistory")
+local PurchaseHistory = dataService:GetDataStore("PurchaseHistory")
 local monetisationMod = {}
+local items = {
+    ["Spring Potion"] = {
+        Price = 10;
+    };
+}
+
+replicatedStorage.Purchase.OnServerEvent:Connect(function(player, promptId)
+    print(player, promptId)
+    marketService:PromptProductPurchase(player, promptId)
+end)
+
+replicatedStorage.CoinPurchase.OnServerEvent:Connect(function(player, itemName)
+    local item = items[itemName]
+
+    if player and dataMod.get(player, "Coins") >= item.Price then
+        dataMod.increment(player, "Coins", - item.Price)
+        local shopFolder = replicatedStorage.Common.ShopItems
+        local tool = shopFolder:FindFirstChild(itemName):Clone()
+        tool.Parent = player.Backpack
+    else
+        replicatedStorage.NotEnoughCoins:FireClient(player)
+    end
+end)
+
 
 monetisationMod.insertTool = function(player, assetId)
     -- load and insert gears from the website
@@ -16,33 +42,25 @@ monetisationMod.insertTool = function(player, assetId)
     tool.Parent = player.Backpack
     asset:Destroy()
 end
---[[
-monetisationMod[000000] = function(player)
-    -- add badges for purchase
 
-    --tool 1
-    monetisationMod.insertTool(player, 00000000)
+monetisationMod[1217899753] = function(player)
+    dataMod.increment(player, "Coins", 50)
 end
 
-monetisationMod[000000] = function(player)
-    -- add badges for purchase
+monetisationMod[1217942198] = function(player)
+    dataMod.increment(player, "Stage", 1)
+    local newStage = dataMod.get(player, "Stage")
 
-    --tool 2
-    monetisationMod.insertTool(player, 00000000)
-end
+    -- teleport to new stage
+    local char = player.Character
+    local torso = char:WaitForChild("HumanoidRootPart")
 
-monetisationMod[000000] = function(player)
-    -- add badges for purchase
-
-    --tool 3
-    monetisationMod.insertTool(player, 00000000)
-end
-]]
-monetisationMod[000000] = function(player)
-    -- add badges for purchase
-
-    --100 coins
-    dataMod.increment(player, "Coins", 100)
+    for _, part in pairs(workspace.SpawnParts:GetChildren()) do
+        if part:GetAttribute("Stage") == newStage then
+            local newStageLoc = part.Position
+            torso.CFrame = CFrame.new(newStageLoc, Vector3.new(0,0,0))  * CFrame.new(0,10,0) -- make sure player spawns above part           
+        end
+    end
 end
 
 
