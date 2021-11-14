@@ -12,11 +12,12 @@ local PurchaseHistory = dataService:GetDataStore("PurchaseHistory")
 local monetisationMod = {}
 local items = {
     ["Spring Potion"] = {
-        Price = 5;
+        Price = 10;
     };
 }
 
 replicatedStorage.Purchase.OnServerEvent:Connect(function(player, promptId)
+    print(player, promptId)
     marketService:PromptProductPurchase(player, promptId)
 end)
 
@@ -29,7 +30,7 @@ replicatedStorage.CoinPurchase.OnServerEvent:Connect(function(player, itemName)
         local tool = shopFolder:FindFirstChild(itemName):Clone()
         tool.Parent = player.Backpack
     else
-        print("not enough")
+        replicatedStorage.NotEnoughCoins:FireClient(player)
     end
 end)
 

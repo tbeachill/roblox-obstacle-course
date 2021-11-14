@@ -3,7 +3,7 @@
 
 local playerService = game:GetService("Players")
 local dataService = game:GetService("DataStoreService")     -- used to save data to Roblox servers
-local store = dataService:GetDataStore("DataStoreV1_2")   -- create a new GlobalDataStore instance, this is persistent with the key
+local store = dataService:GetDataStore("DataStoreV1_3")   -- create a new GlobalDataStore instance, this is persistent with the key
 
 local sessionData = {}  -- holds a dictionary containing data on current players with UserIds as indices
 local dataMod = {}
@@ -28,6 +28,7 @@ end
 local defaultData = {
     Coins = 0,
     Stage = 1,
+    Deaths = 0,
 }
 
 dataMod.load = function(player)
@@ -84,6 +85,11 @@ playerService.PlayerAdded:Connect(function(player)
     stage.Parent = folder
     stage.Value = defaultData.Stage
 
+    local deaths = Instance.new("IntValue")  -- set the players stage to the default
+    deaths.Name = "Deaths"                    -- value
+    deaths.Parent = folder
+    deaths.Value = defaultData.Deaths
+
     dataMod.setupData(player)   -- load stored data
 
     -- set up spawn location for a player based on their current stage
@@ -97,6 +103,13 @@ playerService.PlayerAdded:Connect(function(player)
     else
         player.RespawnLocation = workspace.SpawnParts.Stage1
     end
+
+    player.CharacterAdded:Connect(function(character)
+        -- Detect when a player dies and increase their death count
+		character:WaitForChild("Humanoid").Died:Connect(function()
+			dataMod.increment(player, "Deaths", 1)
+		end)
+    end)
     
 end)
 

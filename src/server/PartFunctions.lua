@@ -17,6 +17,7 @@ local partGroups = {
     workspace.PurchaseParts;
     workspace.ShopParts;
     workspace.MoveParts;
+    workspace.SwingParts;
 }
 local items = {
     ["Spring Potion"] = {
@@ -207,8 +208,6 @@ partFunctionsMod.MoveParts = function(part)
 gyroTween:Play()
 moveTween:Play()
 end
-
-
 
 for _, group in pairs(partGroups) do
     -- call the function with the same name as each folder and pass along
