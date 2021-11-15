@@ -1,7 +1,7 @@
 local replicatedStorage = game:GetService("ReplicatedStorage")
 
 script.Parent.MouseButton1Click:Connect(function(player)
-    local promptId = "Spring Potion"
+    local promptId = "Green Trail"
     replicatedStorage.CoinPurchase:FireServer(promptId) 
 end)
 

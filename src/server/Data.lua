@@ -4,7 +4,7 @@
 local playerService = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local dataService = game:GetService("DataStoreService")     -- used to save data to Roblox servers
-local store = dataService:GetDataStore("DataStoreV1_50")   -- create a new GlobalDataStore instance, this is persistent with the key
+local store = dataService:GetDataStore("DataStoreV1_52")   -- create a new GlobalDataStore instance, this is persistent with the key
 
 local sessionData = {}  -- holds a dictionary containing data on current players with UserIds as indices
 local dataMod = {}
@@ -31,6 +31,7 @@ local defaultData = {
     Stage = 1,
     Deaths = 0,
     StageDeaths = 0,
+    EquippedTrail = "",
 }
 
 dataMod.load = function(player)
@@ -99,6 +100,11 @@ playerService.PlayerAdded:Connect(function(player)
     deathsOnStage.Name = "StageDeaths"
     deathsOnStage.Parent = hiddenData
     deathsOnStage.Value = defaultData.StageDeaths
+
+    local equippedTrail = Instance.new("StringValue")
+    equippedTrail.Name = "EquippedTrail"
+    equippedTrail.Parent = hiddenData
+    equippedTrail.Value = defaultData.EquippedTrail
 
     dataMod.setupData(player)   -- load stored data
 

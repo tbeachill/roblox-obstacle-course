@@ -121,7 +121,6 @@ replicatedStorage.Effect.OnClientEvent:Connect(function(part)
         local tween = TweenService:Create(shopButton, tweenInfo, goal)
         tween:Play()
     end
-
 end)
 
 local runService = game:GetService("RunService")

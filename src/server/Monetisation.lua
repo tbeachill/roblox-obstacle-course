@@ -14,6 +14,24 @@ local items = {
     ["Spring Potion"] = {
         Price = 10;
     };
+    ["Red Trail"] = {
+        Price = 25;
+    };
+    ["Orange Trail"] = {
+        Price = 25;
+    };
+    ["Blue Trail"] = {
+        Price = 25;
+    };
+    ["Green Trail"] = {
+        Price = 25;
+    };
+    ["Pink Trail"] = {
+        Price = 25;
+    };
+    ["Rainbow Trail"] = {
+        Price = 50;
+    };
 }
 
 replicatedStorage.Purchase.OnServerEvent:Connect(function(player, promptId)
@@ -22,18 +40,59 @@ replicatedStorage.Purchase.OnServerEvent:Connect(function(player, promptId)
 end)
 
 replicatedStorage.CoinPurchase.OnServerEvent:Connect(function(player, itemName)
+    -- When player purchases an item with coins
     local item = items[itemName]
 
     if player and dataMod.get(player, "Coins") >= item.Price then
         dataMod.increment(player, "Coins", - item.Price)
         local shopFolder = replicatedStorage.Common.ShopItems
-        local tool = shopFolder:FindFirstChild(itemName):Clone()
-        tool.Parent = player.Backpack
+
+        if shopFolder:FindFirstChild(itemName):IsA("Tool") then -- condition if item is a tool
+            local tool = shopFolder:FindFirstChild(itemName):Clone()
+            tool.Parent = player.Backpack
+        else
+            if shopFolder:FindFirstChild(itemName):IsA("Trail") then -- condition if item is a trail
+                -- remove any current trails
+                local char = player.Character
+
+                for _, part in pairs(char.HumanoidRootPart:GetChildren()) do
+                    -- remove any current trails
+                    if part:IsA("Trail") then
+                        part.Enabled = false
+                    end
+                end
+                -- attach new trail
+                local trail = shopFolder:FindFirstChild(itemName):Clone()
+                trail.Attachment0 = char.HumanoidRootPart.RootRigAttachment
+		        trail.Attachment1 = char.Head.NeckRigAttachment
+		        trail.Parent = char.HumanoidRootPart
+
+                -- add trail status to stats
+                dataMod.set(player, "EquippedTrail", itemName)
+            end
+        end
     else
         replicatedStorage.NotEnoughCoins:FireClient(player)
     end
 end)
 
+playerService.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+    -- Get equipped trail name and attach that trail to the character on respawn
+        local itemName = dataMod.get(player, "EquippedTrail")
+        if itemName == "" then
+            print("No trail")
+        else
+            local shopFolder = replicatedStorage.Common.ShopItems
+            local char = player.Character
+
+            local trail = shopFolder:FindFirstChild(itemName):Clone()
+            trail.Attachment0 = char.HumanoidRootPart.RootRigAttachment
+            trail.Attachment1 = char.Head.NeckRigAttachment
+            trail.Parent = char.HumanoidRootPart
+        end
+    end)
+end)
 
 monetisationMod.insertTool = function(player, assetId)
     -- load and insert gears from the website
@@ -51,12 +110,16 @@ monetisationMod[1217942198] = function(player)
     dataMod.increment(player, "Stage", 1)
     local newStage = dataMod.get(player, "Stage")
 
+    -- set the number of deaths on the stage to 0
+    dataMod.set(player, "StageDeaths", 0)
+
     -- teleport to new stage
     local char = player.Character
     local torso = char:WaitForChild("HumanoidRootPart")
 
     for _, part in pairs(workspace.SpawnParts:GetChildren()) do
         if part:GetAttribute("Stage") == newStage then
+            player.RespawnLocation = part 
             local newStageLoc = part.Position
             torso.CFrame = CFrame.new(newStageLoc, Vector3.new(0,0,0))  * CFrame.new(0,10,0) -- make sure player spawns above part           
         end
