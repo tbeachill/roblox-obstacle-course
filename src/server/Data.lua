@@ -32,6 +32,7 @@ local defaultData = {
     Deaths = 0,
     StageDeaths = 0,
     EquippedTrail = "",
+    EquippedPet = "",
 }
 
 dataMod.load = function(player)
@@ -62,7 +63,6 @@ dataMod.setupData = function(player)
 
     if data then    -- if there is stored data for the player
         for index, value in pairs(data) do  -- load the stored data
-            print(player, index, value)
             dataMod.set(player, index, value)
         end
 
@@ -105,6 +105,11 @@ playerService.PlayerAdded:Connect(function(player)
     equippedTrail.Name = "EquippedTrail"
     equippedTrail.Parent = hiddenData
     equippedTrail.Value = defaultData.EquippedTrail
+
+    local equippedPet = Instance.new("StringValue")
+    equippedPet.Name = "EquippedPet"
+    equippedPet.Parent = hiddenData
+    equippedPet.Value = defaultData.EquippedPet
 
     dataMod.setupData(player)   -- load stored data
 

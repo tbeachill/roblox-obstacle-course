@@ -32,12 +32,80 @@ local items = {
     ["Rainbow Trail"] = {
         Price = 50;
     };
+    ["Bee Pet"] = {
+        Price = 100;
+    };
+    ["Pink Slime Pet"] = {
+        Price = 75;
+    };
+    ["Blue Slime Pet"] = {
+        Price = 75;
+    };
+    ["Green Slime Pet"] = {
+        Price = 75;
+    };
 }
 
 replicatedStorage.Purchase.OnServerEvent:Connect(function(player, promptId)
-    print(player, promptId)
     marketService:PromptProductPurchase(player, promptId)
 end)
+
+monetisationMod.givePet = function(player, itemName)
+    -- give a specified pet to a specified player
+
+    local char = player.Character
+    local shopFolder = replicatedStorage.Common.ShopItems
+
+    for _, part in pairs(char.HumanoidRootPart:GetChildren()) do
+        -- remove any current pets
+        if part:IsA("Model") then
+            part:Destroy()
+        end
+    end
+
+    local pet = shopFolder:FindFirstChild(itemName):Clone()
+    pet.Parent = char.HumanoidRootPart
+    
+    pet.PrimaryPart.BodyPosition.Position = char.HumanoidRootPart.Position
+    local attachmentCharacter = Instance.new("Attachment")
+    attachmentCharacter.Visible = false
+    attachmentCharacter.Parent = char.HumanoidRootPart
+    attachmentCharacter.Position = Vector3.new(0,0,0)  --Distance from player
+
+    local attachmentPet = Instance.new("Attachment")
+    attachmentPet.Visible = false
+    attachmentPet.Parent = pet.PrimaryPart
+
+    local alignOrientation = Instance.new("AlignOrientation")
+    alignOrientation.MaxTorque = 2500
+    alignOrientation.Attachment0 = attachmentPet
+    alignOrientation.Attachment1 = attachmentCharacter
+    alignOrientation.Responsiveness = 25
+    alignOrientation.Parent = pet
+
+    dataMod.set(player, "EquippedPet", itemName)
+end
+
+monetisationMod.giveTrail = function(player, itemName)
+    -- remove any current trails
+    local char = player.Character
+
+    for _, part in pairs(char.HumanoidRootPart:GetChildren()) do
+        -- remove any current trails
+        if part:IsA("Trail") then
+            part:Destroy()
+        end
+    end
+    -- attach new trail
+    local shopFolder = replicatedStorage.Common.ShopItems
+    local trail = shopFolder:FindFirstChild(itemName):Clone()
+    trail.Attachment0 = char.HumanoidRootPart.RootRigAttachment
+	trail.Attachment1 = char.Head.NeckRigAttachment
+	trail.Parent = char.HumanoidRootPart
+
+    -- add trail status to stats
+    dataMod.set(player, "EquippedTrail", itemName)
+end
 
 replicatedStorage.CoinPurchase.OnServerEvent:Connect(function(player, itemName)
     -- When player purchases an item with coins
@@ -45,6 +113,7 @@ replicatedStorage.CoinPurchase.OnServerEvent:Connect(function(player, itemName)
 
     if player and dataMod.get(player, "Coins") >= item.Price then
         dataMod.increment(player, "Coins", - item.Price)
+        print(player, "bought", itemName, "for", item.Price, "coins.")
         local shopFolder = replicatedStorage.Common.ShopItems
 
         if shopFolder:FindFirstChild(itemName):IsA("Tool") then -- condition if item is a tool
@@ -52,23 +121,11 @@ replicatedStorage.CoinPurchase.OnServerEvent:Connect(function(player, itemName)
             tool.Parent = player.Backpack
         else
             if shopFolder:FindFirstChild(itemName):IsA("Trail") then -- condition if item is a trail
-                -- remove any current trails
-                local char = player.Character
-
-                for _, part in pairs(char.HumanoidRootPart:GetChildren()) do
-                    -- remove any current trails
-                    if part:IsA("Trail") then
-                        part.Enabled = false
-                    end
+                monetisationMod.giveTrail(player, itemName)
+            else 
+                if shopFolder:FindFirstChild(itemName):IsA("Model") then   -- condition if item is a pet
+                    monetisationMod.givePet(player, itemName)
                 end
-                -- attach new trail
-                local trail = shopFolder:FindFirstChild(itemName):Clone()
-                trail.Attachment0 = char.HumanoidRootPart.RootRigAttachment
-		        trail.Attachment1 = char.Head.NeckRigAttachment
-		        trail.Parent = char.HumanoidRootPart
-
-                -- add trail status to stats
-                dataMod.set(player, "EquippedTrail", itemName)
             end
         end
     else
@@ -78,18 +135,21 @@ end)
 
 playerService.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(character)
-    -- Get equipped trail name and attach that trail to the character on respawn
+        -- Check pet and trail status and equip
+        local shopFolder = replicatedStorage.Common.ShopItems
+        local char = player.Character 
         local itemName = dataMod.get(player, "EquippedTrail")
-        if itemName == "" then
-            print("No trail")
-        else
-            local shopFolder = replicatedStorage.Common.ShopItems
-            local char = player.Character
 
-            local trail = shopFolder:FindFirstChild(itemName):Clone()
-            trail.Attachment0 = char.HumanoidRootPart.RootRigAttachment
-            trail.Attachment1 = char.Head.NeckRigAttachment
-            trail.Parent = char.HumanoidRootPart
+        if itemName ~= "" then
+            wait(3)
+            monetisationMod.giveTrail(player, itemName)
+        end
+
+        local itemName = dataMod.get(player, "EquippedPet")
+
+        if itemName ~= "" then
+            wait(3)
+            monetisationMod.givePet(player, itemName)
         end
     end)
 end)

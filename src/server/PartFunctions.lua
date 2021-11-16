@@ -160,10 +160,8 @@ partFunctionsMod.ShopParts = function(part)
     -- on touch, check if player has enough coins, if so, give them the item
     local itemName = part.Name
     local item = items[itemName]
-    print(item)
     part.Touched:Connect(function(hit)
         local player = partFunctionsMod.playerFromHit(hit)
-        print(dataMod.get(player, "Coins"))
         
         if player and dataMod.get(player, "Coins") >= item.Price then
             dataMod.increment(player, "Coins", - item.Price)
