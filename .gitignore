@@ -6,5 +6,5 @@
 /*.rbxl.lock
 
 # Roblox models
-/*.rbxmx
-/*.rbxm
+*.rbxmx
+*.rbxm
