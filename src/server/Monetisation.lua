@@ -141,14 +141,14 @@ playerService.PlayerAdded:Connect(function(player)
         local itemName = dataMod.get(player, "EquippedTrail")
 
         if itemName ~= "" then
-            wait(3)
+            wait(2)
             monetisationMod.giveTrail(player, itemName)
         end
 
         local itemName = dataMod.get(player, "EquippedPet")
 
         if itemName ~= "" then
-            wait(3)
+            wait(2)
             monetisationMod.givePet(player, itemName)
         end
     end)
@@ -164,14 +164,15 @@ end
 
 monetisationMod[1217899753] = function(player)
     dataMod.increment(player, "Coins", 50)
+    replicatedStorage.ClosePrompt:FireClient(player)
 end
 
 monetisationMod[1217942198] = function(player)
     dataMod.increment(player, "Stage", 1)
     local newStage = dataMod.get(player, "Stage")
-
     -- set the number of deaths on the stage to 0
     dataMod.set(player, "StageDeaths", 0)
+    replicatedStorage.ClosePrompt:FireClient(player)
 
     -- teleport to new stage
     local char = player.Character
@@ -182,8 +183,8 @@ monetisationMod[1217942198] = function(player)
             player.RespawnLocation = part 
             local newStageLoc = part.Position
             torso.CFrame = CFrame.new(newStageLoc, Vector3.new(0,0,0))  * CFrame.new(0,10,0) -- make sure player spawns above part           
+            end
         end
-    end
 end
 
 
