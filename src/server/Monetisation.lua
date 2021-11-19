@@ -163,11 +163,13 @@ monetisationMod.insertTool = function(player, assetId)
 end
 
 monetisationMod[1217899753] = function(player)
+    -- 50 coins
     dataMod.increment(player, "Coins", 50)
     replicatedStorage.ClosePrompt:FireClient(player)
 end
 
 monetisationMod[1217942198] = function(player)
+    -- skip stage
     dataMod.increment(player, "Stage", 1)
     local newStage = dataMod.get(player, "Stage")
     -- set the number of deaths on the stage to 0
@@ -183,8 +185,27 @@ monetisationMod[1217942198] = function(player)
             player.RespawnLocation = part 
             local newStageLoc = part.Position
             torso.CFrame = CFrame.new(newStageLoc, Vector3.new(0,0,0))  * CFrame.new(0,10,0) -- make sure player spawns above part           
-            end
         end
+    end
+end
+
+monetisationMod[1223592115] = function(player)
+    -- replay
+    dataMod.set(player, "Stage", 1)
+    dataMod.set(player, "StageDeaths", 0)
+    dataMod.set(player, "Deaths", 0)
+
+    -- teleport to start
+    local char = player.Character
+    local torso = char:WaitForChild("HumanoidRootPart")
+
+    for _, part in pairs(workspace.SpawnParts:GetChildren()) do
+        if part:GetAttribute("Stage") == 1 then
+            player.RespawnLocation = part 
+            local newStageLoc = part.Position
+            torso.CFrame = CFrame.new(newStageLoc, Vector3.new(0,0,0))  * CFrame.new(0,10,0) -- make sure player spawns above part           
+        end
+    end
 end
 
 

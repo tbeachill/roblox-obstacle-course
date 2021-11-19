@@ -1,0 +1,12 @@
+{
+    "className": "ImageButton",
+    "properties": {
+        "SizeConstraint": "RelativeXX",
+        "Size": [0.05,0,0.05,0],
+        "Position": [0.002,0,0.64,0],
+        "BorderSizePixel": 0,
+        "BackgroundTransparency": 1,
+        "Image": "rbxassetid://8041097575",
+        "HoverImage": "rbxassetid://8041097276"
+    }
+}
