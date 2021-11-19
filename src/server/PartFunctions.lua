@@ -87,6 +87,10 @@ partFunctionsMod.SpawnParts = function(part)
 
             -- set the number of deaths on the stage to 0
             dataMod.set(player, "StageDeaths", 0)
+        else
+            if player and dataMod.get(player, "Stage") == stage + 1 then
+                replicatedStorage.WrongWay:FireClient(player)
+            end
         end
     end)
 end
