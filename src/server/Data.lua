@@ -4,7 +4,7 @@
 local playerService = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local dataService = game:GetService("DataStoreService")     -- used to save data to Roblox servers
-local store = dataService:GetDataStore("DataStoreV1_53")   -- create a new GlobalDataStore instance, this is persistent with the key
+local store = dataService:GetDataStore("DataStoreV1_72")   -- create a new GlobalDataStore instance, this is persistent with the key
 
 local sessionData = {}  -- holds a dictionary containing data on current players with UserIds as indices
 local dataMod = {}
@@ -33,6 +33,13 @@ local defaultData = {
     StageDeaths = 0,
     EquippedTrail = "",
     EquippedPet = "",
+    CoinTags = {
+        false; false; false; false; false; false; false; false; false; false;
+        false; false; false; false; false; false; false; false; false; false;
+        false; false; false; false; false; false; false; false; false; false;
+        false; false; false; false; false; false; false; false; false; false;
+        false; false; false; false; false; false; false; false; false; false;
+    }
 }
 
 dataMod.load = function(player)
@@ -111,6 +118,17 @@ playerService.PlayerAdded:Connect(function(player)
     equippedPet.Parent = hiddenData
     equippedPet.Value = defaultData.EquippedPet
 
+    local coinTags = Instance.new("Folder")
+    coinTags.Name = "CoinTags"
+    coinTags.Parent = hiddenData
+
+    for k, v in pairs(defaultData.CoinTags) do
+        local coin = Instance.new("BoolValue")
+        coin.Name = k
+        coin.Parent = coinTags
+        coin.Value = defaultData.CoinTags[k]
+    end
+
     dataMod.setupData(player)   -- load stored data
 
     -- set up spawn location for a player based on their current stage
@@ -124,6 +142,9 @@ playerService.PlayerAdded:Connect(function(player)
     else
         player.RespawnLocation = workspace.SpawnParts.Stage1
     end
+
+    local collectedCoins = dataMod.get(player, "CoinTags")
+    replicatedStorage.CoinTransparency:FireClient(player, collectedCoins)
 
     player.CharacterAdded:Connect(function(character)
         -- Detect when a player dies and increase their death count
@@ -140,14 +161,31 @@ playerService.PlayerAdded:Connect(function(player)
     end)
 end)
 
-dataMod.set = function(player, stat, value)
+dataMod.set = function(player, stat, value, code)
     -- set [stat] for [player] to [value] in sessionData
     local key = player.UserId
-    sessionData[key][stat] = value
+    if not code then
+        sessionData[key][stat] = value
+    else
+        sessionData[key]["CoinTags"][code] = value
+    end
+
     if stat == "Stage" or stat == "Deaths" or stat == "Coins" then -- if stat belongs in leaderstats
         player.leaderstats[stat].Value = value
-    else    
-        player.HiddenData[stat].Value = value
+    else
+        if stat == "CoinTags" then
+            if code then
+                -- if a coin code has been passed, update that coin value
+                    player.HiddenData.CoinTags[code].Value = value
+            else
+                -- if no coin code has been passed, update all coin values from the value table
+                for k, v in pairs(value) do
+                    player.HiddenData.CoinTags[k].Value = v
+                end
+            end
+        else
+            player.HiddenData[stat].Value = value
+        end
     end
 end
 

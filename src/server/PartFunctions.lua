@@ -99,27 +99,21 @@ partFunctionsMod.RewardParts = function(part)
     -- when touched, check for a CoinTags folder on the player, create if nil
     -- if the coin has not been collected before, award the coin
     local reward = part:GetAttribute("Reward")   -- changed from part.Reward.Value to part:GetAttribute("Value")
-    local code = uniqueCode
-    uniqueCode = uniqueCode + 1
 
     part.Touched:Connect(function(hit)
         local player = partFunctionsMod.playerFromHit(hit)
+        local code = part:GetAttribute("CoinCode")
     
         if player then
-            local tagFolder = player:FindFirstChild("CoinTags")
-            if not tagFolder then
-                tagFolder = Instance.new("Folder")
-                tagFolder.Name = "CoinTags"
-                tagFolder.Parent = player
-            end
+            local coinTags = dataMod.get(player, "CoinTags")
+            
+            if coinTags[code] == false then
+                if code <= 50 and code > 0 then
+                    dataMod.increment(player, "Coins", reward)
+                    dataMod.set(player, "CoinTags", true, code)
 
-            if not tagFolder:FindFirstChild(code) then
-                dataMod.increment(player, "Coins", reward)
-                local codeTag = Instance.new("BoolValue")
-                codeTag.Name = code
-                codeTag.Parent = tagFolder
-
-                replicatedStorage.Effect:FireClient(player, part)
+                    replicatedStorage.Effect:FireClient(player, part)
+                end
             end
         end
     end)

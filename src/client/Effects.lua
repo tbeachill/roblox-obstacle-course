@@ -40,6 +40,19 @@ replicatedStorage.Effect.OnClientEvent:Connect(function(part)
     
 end)
 
+replicatedStorage.CoinTransparency.OnClientEvent:Connect(function(coinTable)
+    -- make all coins that have already been collected invisible
+    for k, v in pairs(coinTable) do
+        if v == true then
+            for _, coinModel in pairs(workspace.RewardParts.Coins:GetChildren()) do
+                if coinModel:GetAttribute("CoinCode") == k then
+                    coinModel.Transparency = 1
+                end
+            end
+        end
+    end
+end)
+
 effectsMod.RewardParts = function(part)
     -- make part transparent and play sound
     part.Transparency = 1
@@ -76,24 +89,10 @@ effectsMod.SpawnParts = function(part)
         stageText.StageNumber.TextTransparency = 100
         stageText.StageTitle.TextTransparency = 100
     end)
-end
 
-effectsMod.StairParts = function(part)
-    delay(1, function()
-        part.Transparency = 1
-        part.CanCollide = false
-    end)
-
-    delay(5, function()
-        part.Transparency = 0
-        part.CanCollide = true
-    end)    
-end
-
-replicatedStorage.Effect.OnClientEvent:Connect(function(part)
-    -- Animate shop button
+    -- animate shop button
     if part:GetAttribute("Stage") % 2 == 0 then
-        wait(4)
+        wait(2)
         local player = game.Players.LocalPlayer
         local shopButton = player.PlayerGui.Gui.ButtonGui.OpenShop
 
@@ -121,7 +120,20 @@ replicatedStorage.Effect.OnClientEvent:Connect(function(part)
         local tween = TweenService:Create(shopButton, tweenInfo, goal)
         tween:Play()
     end
-end)
+
+end
+
+effectsMod.StairParts = function(part)
+    delay(1, function()
+        part.Transparency = 1
+        part.CanCollide = false
+    end)
+
+    delay(5, function()
+        part.Transparency = 0
+        part.CanCollide = true
+    end)    
+end
 
 local runService = game:GetService("RunService")
 local rotParts = {}
