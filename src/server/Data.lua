@@ -4,7 +4,7 @@
 local playerService = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local dataService = game:GetService("DataStoreService")     -- used to save data to Roblox servers
-local store = dataService:GetDataStore("DataStoreV1_72")   -- create a new GlobalDataStore instance, this is persistent with the key
+local store = dataService:GetDataStore("DataStoreV1_73")   -- create a new GlobalDataStore instance, this is persistent with the key
 
 local sessionData = {}  -- holds a dictionary containing data on current players with UserIds as indices
 local dataMod = {}
@@ -146,6 +146,9 @@ playerService.PlayerAdded:Connect(function(player)
     local collectedCoins = dataMod.get(player, "CoinTags")
     replicatedStorage.CoinTransparency:FireClient(player, collectedCoins)
 
+    player:LoadCharacter()
+    playerService.CharacterAutoLoads = true
+
     player.CharacterAdded:Connect(function(character)
         -- Detect when a player dies and increase their death count
 		character:WaitForChild("Humanoid").Died:Connect(function()
@@ -155,7 +158,7 @@ playerService.PlayerAdded:Connect(function(player)
             if dataMod.get(player, "StageDeaths") == 3 then
                 -- fire event to prompt to skip stage
                 wait(2)
-                replicatedStorage.PromptSkip:FireClient(player)
+                replicatedStorage.PromptSkip:FireClient(player)   
             end
 		end)
     end)
