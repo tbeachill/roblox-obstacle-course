@@ -40,7 +40,7 @@ partFunctionsMod.KillParts = function(part)
     -- if a player touches the part, kill the player
     part.Touched:Connect(function(hit)
         local player, char = partFunctionsMod.playerFromHit(hit)
-        if player and char.Humanoid.Health > 0 then
+        if player and char.Humanoid.Health > 0 and dataMod.get(player, "EasyMode") == false then
             char.Humanoid.Health = 0
         end
     end)
@@ -109,6 +109,8 @@ partFunctionsMod.RewardParts = function(part)
             
             if coinTags[code] == false then
                 if code <= 50 and code > 0 then
+                    local coinMultiplier = dataMod.get(player, "CoinMultiplier")
+                    reward = reward * coinMultiplier
                     dataMod.increment(player, "Coins", reward)
                     dataMod.set(player, "CoinTags", true, code)
 

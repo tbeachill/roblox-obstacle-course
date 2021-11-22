@@ -1,10 +1,9 @@
 -- game data functions
--- uncomment code when published
 
 local playerService = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local dataService = game:GetService("DataStoreService")     -- used to save data to Roblox servers
-local store = dataService:GetDataStore("DataStoreV1_73")   -- create a new GlobalDataStore instance, this is persistent with the key
+local store = dataService:GetDataStore("DataStoreV1_74")   -- create a new GlobalDataStore instance, this is persistent with the key
 
 local sessionData = {}  -- holds a dictionary containing data on current players with UserIds as indices
 local dataMod = {}
@@ -33,6 +32,10 @@ local defaultData = {
     StageDeaths = 0,
     EquippedTrail = "",
     EquippedPet = "",
+    CoinMultiplier = 1;
+    EasyMode = false;
+    VIP = false;
+    DoubleJump = false;
     CoinTags = {
         false; false; false; false; false; false; false; false; false; false;
         false; false; false; false; false; false; false; false; false; false;
@@ -118,6 +121,26 @@ playerService.PlayerAdded:Connect(function(player)
     equippedPet.Parent = hiddenData
     equippedPet.Value = defaultData.EquippedPet
 
+    local coinMultiplier = Instance.new("IntValue")
+    coinMultiplier.Name = "CoinMultiplier"
+    coinMultiplier.Parent = hiddenData
+    coinMultiplier.Value = defaultData.CoinMultiplier
+
+    local easyMode = Instance.new("BoolValue")
+    easyMode.Name = "EasyMode"
+    easyMode.Parent = hiddenData
+    easyMode.Value = defaultData.EasyMode
+
+    local vipMode = Instance.new("BoolValue")
+    vipMode.Name = "VIP"
+    vipMode.Parent = hiddenData
+    vipMode.Value = defaultData.VIP
+
+    local doubleJump = Instance.new("BoolValue")
+    doubleJump.Name = "DoubleJump"
+    doubleJump.Parent = hiddenData
+    doubleJump.Value = defaultData.DoubleJump
+
     local coinTags = Instance.new("Folder")
     coinTags.Name = "CoinTags"
     coinTags.Parent = hiddenData
@@ -146,6 +169,7 @@ playerService.PlayerAdded:Connect(function(player)
     local collectedCoins = dataMod.get(player, "CoinTags")
     replicatedStorage.CoinTransparency:FireClient(player, collectedCoins)
 
+    -- wait until character has fully loaded, then spawn
     player:LoadCharacter()
     playerService.CharacterAutoLoads = true
 
@@ -167,6 +191,7 @@ end)
 dataMod.set = function(player, stat, value, code)
     -- set [stat] for [player] to [value] in sessionData
     local key = player.UserId
+    print("PLAYER", player, "STAT", stat, "VALUE", value, "CODE", code)
     if not code then
         sessionData[key][stat] = value
     else

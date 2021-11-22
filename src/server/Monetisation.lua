@@ -50,6 +50,10 @@ replicatedStorage.Purchase.OnServerEvent:Connect(function(player, promptId)
     marketService:PromptProductPurchase(player, promptId)
 end)
 
+replicatedStorage.GamePassPurchase.OnServerEvent:Connect(function(player, gamePassId)
+    marketService:PromptGamePassPurchase(player, gamePassId)
+end)
+
 monetisationMod.givePet = function(player, itemName)
     -- give a specified pet to a specified player
 
@@ -158,8 +162,16 @@ monetisationMod.insertTool = function(player, assetId)
     -- load and insert gears from the website
     local asset = insertService:LoadAsset(assetId)
     local tool = asset:FindFirstChildOfClass("Tool")
+    print("TOOL", asset)
     tool.Parent = player.Backpack
     asset:Destroy()
+end
+
+monetisationMod.giveTool = function(player, itemName)
+    -- give player a named tool from replicated storage
+    local shopFolder = replicatedStorage.Common.ShopItems
+    local tool = shopFolder:FindFirstChild(itemName):Clone()
+    tool.Parent = player.Backpack
 end
 
 monetisationMod[1217899753] = function(player)
@@ -208,6 +220,46 @@ monetisationMod[1223592115] = function(player)
     end
 end
 
+-- game passes
+monetisationMod[25148318] = function(player)
+    -- double coins
+    dataMod.set(player, "CoinMultiplier", 2)
+end
+
+monetisationMod[25225319] = function(player)
+    -- double jump
+    dataMod.set(player, "DoubleJump", true)
+end
+
+monetisationMod[25148457] = function(player)
+    -- easy mode
+    dataMod.set(player, "EasyMode", true)
+end
+
+monetisationMod[25148694] = function(player)
+    -- flying carpet
+    monetisationMod.giveTool(player, "Flying Carpet")
+end
+
+monetisationMod[25148786] = function(player)
+    -- gravity coil
+    monetisationMod.giveTool(player, "Gravity Coil")
+end
+
+monetisationMod[25148946] = function(player)
+    -- radio
+    monetisationMod.giveTool(player, "Radio")
+end
+
+monetisationMod[25148838] = function(player)
+    -- speed coil
+    monetisationMod.giveTool(player, "Speed Coil")
+end
+
+monetisationMod[25148583] = function(player)
+    -- VIP
+    dataMod.set(player, "VIP", true)
+end
 
 marketService.PromptGamePassPurchaseFinished:Connect(function(player, gamePassId, wasPurchased)
     -- detect when player has finished interacting with the prompt
@@ -243,6 +295,49 @@ marketService.PromptProductPurchaseFinished:Connect(function(playerId, productId
         local player = playerService:GetPlayerByUserId(playerId)
         monetisationMod[productId](player)
     end
+end)
+
+local function checkGamePass(player, gamePassId)
+    -- check if a player owns a gamepass
+	local hasPass = false
+ 
+	-- Check if the player already owns the game pass
+	local success, message = pcall(function()
+		hasPass = marketService:UserOwnsGamePassAsync(player.UserId, gamePassId)
+	end)
+ 
+	if not success then
+		warn("Error while checking if player has pass: " .. tostring(message))
+		return
+	end
+ 
+	if hasPass == true then
+		print(player.Name .. " owns the game pass with ID " .. gamePassId)
+		-- Assign this player the ability or bonus related to the game pass
+		monetisationMod[gamePassId](player)
+	end
+end
+
+local gamePassTable = {
+    25148318;    -- double coins
+    25225319;    -- double jump
+    25148457;    -- easy mode
+    25148694;    -- flying carpet
+    25148786;    -- gravity coil
+    25148946;    -- radio
+    25148838;    -- speed coil
+    25148583;    -- vip
+}
+
+
+playerService.PlayerAdded:Connect(function(player)
+    -- go through every game pass and pass it to the check function
+    wait(3)
+    for _, gamePassId in pairs(gamePassTable) do
+        checkGamePass(player, gamePassId)
+    end
+    
+
 end)
 
 return monetisationMod
