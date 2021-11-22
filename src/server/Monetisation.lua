@@ -330,14 +330,15 @@ local gamePassTable = {
 }
 
 
-playerService.PlayerAdded:Connect(function(player)
-    -- go through every game pass and pass it to the check function
-    wait(3)
-    for _, gamePassId in pairs(gamePassTable) do
-        checkGamePass(player, gamePassId)
-    end
-    
-
+playerService.PlayerAdded:Connect(function(player)  
+    player.CharacterAdded:Connect(function(character)
+        wait(1)
+        for _, gamePassId in pairs(gamePassTable) do
+            checkGamePass(player, gamePassId)
+        end
+    end)
 end)
+
+
 
 return monetisationMod
