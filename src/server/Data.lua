@@ -173,6 +173,17 @@ playerService.PlayerAdded:Connect(function(player)
     player:LoadCharacter()
     playerService.CharacterAutoLoads = true
 
+    -- make accessories not able to touch red parts
+    for _, item in pairs(player.Character:GetChildren()) do
+        if item:IsA("Accessory") then
+            for _, subItem in pairs(item:GetDescendants()) do
+                if subItem:IsA("MeshPart") then
+                    subItem.CanTouch = false
+                end
+            end
+        end
+    end
+
     player.CharacterAdded:Connect(function(character)
         -- Detect when a player dies and increase their death count
 		character:WaitForChild("Humanoid").Died:Connect(function()
