@@ -87,6 +87,11 @@ partFunctionsMod.SpawnParts = function(part)
 
             -- set the number of deaths on the stage to 0
             dataMod.set(player, "StageDeaths", 0)
+            
+            -- show the replay button if at final stage
+            if stage == 100 then
+                player.PlayerGui.Gui.FinishedScreen.Enabled = true
+            end
         else
             if player and dataMod.get(player, "Stage") == stage + 1 then
                 replicatedStorage.WrongWay:FireClient(player)
