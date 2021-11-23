@@ -1,4 +1,4 @@
-for _, module in pairs(script:GetChildren()) do
+for _, module in pairs(script:GetChildren()) do  
     local loadMod = coroutine.create(function()
     require(module)
     end)

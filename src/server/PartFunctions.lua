@@ -40,7 +40,7 @@ partFunctionsMod.KillParts = function(part)
     -- if a player touches the part, kill the player
     part.Touched:Connect(function(hit)
         local player, char = partFunctionsMod.playerFromHit(hit)
-        if player and char.Humanoid.Health > 0 then
+        if player and char.Humanoid.Health > 0 and dataMod.get(player, "EasyMode") == false then
             char.Humanoid.Health = 0
         end
     end)
@@ -87,6 +87,10 @@ partFunctionsMod.SpawnParts = function(part)
 
             -- set the number of deaths on the stage to 0
             dataMod.set(player, "StageDeaths", 0)
+        else
+            if player and dataMod.get(player, "Stage") == stage + 1 then
+                replicatedStorage.WrongWay:FireClient(player)
+            end
         end
     end)
 end
@@ -95,27 +99,23 @@ partFunctionsMod.RewardParts = function(part)
     -- when touched, check for a CoinTags folder on the player, create if nil
     -- if the coin has not been collected before, award the coin
     local reward = part:GetAttribute("Reward")   -- changed from part.Reward.Value to part:GetAttribute("Value")
-    local code = uniqueCode
-    uniqueCode = uniqueCode + 1
 
     part.Touched:Connect(function(hit)
         local player = partFunctionsMod.playerFromHit(hit)
+        local code = part:GetAttribute("CoinCode")
     
         if player then
-            local tagFolder = player:FindFirstChild("CoinTags")
-            if not tagFolder then
-                tagFolder = Instance.new("Folder")
-                tagFolder.Name = "CoinTags"
-                tagFolder.Parent = player
-            end
+            local coinTags = dataMod.get(player, "CoinTags")
+            
+            if coinTags[code] == false then
+                if code <= 50 and code > 0 then
+                    local coinMultiplier = dataMod.get(player, "CoinMultiplier")
+                    reward = reward * coinMultiplier
+                    dataMod.increment(player, "Coins", reward)
+                    dataMod.set(player, "CoinTags", true, code)
 
-            if not tagFolder:FindFirstChild(code) then
-                dataMod.increment(player, "Coins", reward)
-                local codeTag = Instance.new("BoolValue")
-                codeTag.Name = code
-                codeTag.Parent = tagFolder
-
-                replicatedStorage.Effect:FireClient(player, part)
+                    replicatedStorage.Effect:FireClient(player, part)
+                end
             end
         end
     end)
@@ -160,10 +160,8 @@ partFunctionsMod.ShopParts = function(part)
     -- on touch, check if player has enough coins, if so, give them the item
     local itemName = part.Name
     local item = items[itemName]
-    print(item)
     part.Touched:Connect(function(hit)
         local player = partFunctionsMod.playerFromHit(hit)
-        print(dataMod.get(player, "Coins"))
         
         if player and dataMod.get(player, "Coins") >= item.Price then
             dataMod.increment(player, "Coins", - item.Price)
@@ -208,8 +206,8 @@ partFunctionsMod.MoveParts = function(part)
         {Position = part.BodyPosition.Position + dirDict[part:GetAttribute("Direction")] }
     )
 
-gyroTween:Play()
-moveTween:Play()
+    gyroTween:Play()
+    moveTween:Play()
 end
 
 for _, group in pairs(partGroups) do

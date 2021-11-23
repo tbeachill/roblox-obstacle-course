@@ -1,10 +1,9 @@
 -- game data functions
--- uncomment code when published
 
 local playerService = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local dataService = game:GetService("DataStoreService")     -- used to save data to Roblox servers
-local store = dataService:GetDataStore("DataStoreV1_50")   -- create a new GlobalDataStore instance, this is persistent with the key
+local store = dataService:GetDataStore("DataStoreV1_74")   -- create a new GlobalDataStore instance, this is persistent with the key
 
 local sessionData = {}  -- holds a dictionary containing data on current players with UserIds as indices
 local dataMod = {}
@@ -31,6 +30,19 @@ local defaultData = {
     Stage = 1,
     Deaths = 0,
     StageDeaths = 0,
+    EquippedTrail = "",
+    EquippedPet = "",
+    CoinMultiplier = 1;
+    EasyMode = false;
+    VIP = false;
+    DoubleJump = false;
+    CoinTags = {
+        false; false; false; false; false; false; false; false; false; false;
+        false; false; false; false; false; false; false; false; false; false;
+        false; false; false; false; false; false; false; false; false; false;
+        false; false; false; false; false; false; false; false; false; false;
+        false; false; false; false; false; false; false; false; false; false;
+    }
 }
 
 dataMod.load = function(player)
@@ -61,7 +73,6 @@ dataMod.setupData = function(player)
 
     if data then    -- if there is stored data for the player
         for index, value in pairs(data) do  -- load the stored data
-            print(player, index, value)
             dataMod.set(player, index, value)
         end
 
@@ -100,6 +111,47 @@ playerService.PlayerAdded:Connect(function(player)
     deathsOnStage.Parent = hiddenData
     deathsOnStage.Value = defaultData.StageDeaths
 
+    local equippedTrail = Instance.new("StringValue")
+    equippedTrail.Name = "EquippedTrail"
+    equippedTrail.Parent = hiddenData
+    equippedTrail.Value = defaultData.EquippedTrail
+
+    local equippedPet = Instance.new("StringValue")
+    equippedPet.Name = "EquippedPet"
+    equippedPet.Parent = hiddenData
+    equippedPet.Value = defaultData.EquippedPet
+
+    local coinMultiplier = Instance.new("IntValue")
+    coinMultiplier.Name = "CoinMultiplier"
+    coinMultiplier.Parent = hiddenData
+    coinMultiplier.Value = defaultData.CoinMultiplier
+
+    local easyMode = Instance.new("BoolValue")
+    easyMode.Name = "EasyMode"
+    easyMode.Parent = hiddenData
+    easyMode.Value = defaultData.EasyMode
+
+    local vipMode = Instance.new("BoolValue")
+    vipMode.Name = "VIP"
+    vipMode.Parent = hiddenData
+    vipMode.Value = defaultData.VIP
+
+    local doubleJump = Instance.new("BoolValue")
+    doubleJump.Name = "DoubleJump"
+    doubleJump.Parent = hiddenData
+    doubleJump.Value = defaultData.DoubleJump
+
+    local coinTags = Instance.new("Folder")
+    coinTags.Name = "CoinTags"
+    coinTags.Parent = hiddenData
+
+    for k, v in pairs(defaultData.CoinTags) do
+        local coin = Instance.new("BoolValue")
+        coin.Name = k
+        coin.Parent = coinTags
+        coin.Value = defaultData.CoinTags[k]
+    end
+
     dataMod.setupData(player)   -- load stored data
 
     -- set up spawn location for a player based on their current stage
@@ -114,6 +166,24 @@ playerService.PlayerAdded:Connect(function(player)
         player.RespawnLocation = workspace.SpawnParts.Stage1
     end
 
+    local collectedCoins = dataMod.get(player, "CoinTags")
+    replicatedStorage.CoinTransparency:FireClient(player, collectedCoins)
+
+    -- wait until character has fully loaded, then spawn
+    player:LoadCharacter()
+    playerService.CharacterAutoLoads = true
+
+    -- make accessories not able to touch red parts
+    for _, item in pairs(player.Character:GetChildren()) do
+        if item:IsA("Accessory") then
+            for _, subItem in pairs(item:GetDescendants()) do
+                if subItem:IsA("MeshPart") then
+                    subItem.CanTouch = false
+                end
+            end
+        end
+    end
+
     player.CharacterAdded:Connect(function(character)
         -- Detect when a player dies and increase their death count
 		character:WaitForChild("Humanoid").Died:Connect(function()
@@ -123,20 +193,38 @@ playerService.PlayerAdded:Connect(function(player)
             if dataMod.get(player, "StageDeaths") == 3 then
                 -- fire event to prompt to skip stage
                 wait(2)
-                replicatedStorage.PromptSkip:FireClient(player)
+                replicatedStorage.PromptSkip:FireClient(player)   
             end
 		end)
     end)
 end)
 
-dataMod.set = function(player, stat, value)
+dataMod.set = function(player, stat, value, code)
     -- set [stat] for [player] to [value] in sessionData
     local key = player.UserId
-    sessionData[key][stat] = value
+    print("PLAYER", player, "STAT", stat, "VALUE", value, "CODE", code)
+    if not code then
+        sessionData[key][stat] = value
+    else
+        sessionData[key]["CoinTags"][code] = value
+    end
+
     if stat == "Stage" or stat == "Deaths" or stat == "Coins" then -- if stat belongs in leaderstats
         player.leaderstats[stat].Value = value
-    else    
-        player.HiddenData[stat].Value = value
+    else
+        if stat == "CoinTags" then
+            if code then
+                -- if a coin code has been passed, update that coin value
+                    player.HiddenData.CoinTags[code].Value = value
+            else
+                -- if no coin code has been passed, update all coin values from the value table
+                for k, v in pairs(value) do
+                    player.HiddenData.CoinTags[k].Value = v
+                end
+            end
+        else
+            player.HiddenData[stat].Value = value
+        end
     end
 end
 
@@ -173,6 +261,14 @@ dataMod.save = function(player)
         dataMod.save(player)
     end
 end
+
+replicatedStorage.EasyModeServerToggle.OnServerEvent:Connect(function(player)
+    if dataMod.get(player, "EasyMode") == true then
+        dataMod.set(player, "EasyMode", false)
+    else
+        dataMod.set(player, "EasyMode", true)
+    end
+end)
 
 dataMod.removeSessionData = function(player)
     -- remove a players data from sessionData
