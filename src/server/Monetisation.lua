@@ -231,9 +231,11 @@ monetisationMod[25225319] = function(player)
     dataMod.set(player, "DoubleJump", true)
 end
 
+
 monetisationMod[25148457] = function(player)
     -- easy mode
     dataMod.set(player, "EasyMode", true)
+    replicatedStorage.EasyModeToggle:FireClient(player)
 end
 
 monetisationMod[25148694] = function(player)
@@ -259,6 +261,7 @@ end
 monetisationMod[25148583] = function(player)
     -- VIP
     dataMod.set(player, "VIP", true)
+    replicatedStorage.VIPTeleport:FireClient(player)
 end
 
 marketService.PromptGamePassPurchaseFinished:Connect(function(player, gamePassId, wasPurchased)
@@ -318,6 +321,19 @@ local function checkGamePass(player, gamePassId)
 	end
 end
 
+replicatedStorage.Teleport.OnServerEvent:Connect(function(player, toVip)
+    if toVip == true then
+        player.character:MoveTo(workspace.VIPSpawn.Position)
+    else
+        local stageNum = dataMod.get(player, "Stage")
+        for _, stagePart in pairs(workspace.SpawnParts:GetChildren()) do
+            if stagePart:GetAttribute("Stage") == stageNum then
+                player.character:MoveTo(stagePart.Position)
+            end
+        end
+    end
+end)
+
 local gamePassTable = {
     25148318;    -- double coins
     25225319;    -- double jump
@@ -330,11 +346,24 @@ local gamePassTable = {
 }
 
 
-playerService.PlayerAdded:Connect(function(player)  
+playerService.PlayerAdded:Connect(function(player)
+    wait(1)
+    for _, gamePassId in pairs(gamePassTable) do
+        checkGamePass(player, gamePassId)
+    end
+
     player.CharacterAdded:Connect(function(character)
         wait(1)
         for _, gamePassId in pairs(gamePassTable) do
-            checkGamePass(player, gamePassId)
+            if gamePassId == 25148457 then
+                if dataMod.get(player, "EasyMode") == false then
+                    replicatedStorage.EasyModeToggle:FireClient(player, "rbxassetid://8071468488")
+                else
+                    replicatedStorage.EasyModeToggle:FireClient(player, "rbxassetid://8071468630")
+                end
+            else
+                checkGamePass(player, gamePassId)
+            end
         end
     end)
 end)

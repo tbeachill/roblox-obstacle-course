@@ -18,7 +18,6 @@ local partGroups = {
     workspace.ShopParts;
     workspace.MoveParts;
     workspace.SwingParts;
-    workspace.FlashParts;
 }
 local items = {
     ["Spring Potion"] = {
@@ -207,54 +206,9 @@ partFunctionsMod.MoveParts = function(part)
         {Position = part.BodyPosition.Position + dirDict[part:GetAttribute("Direction")] }
     )
 
-gyroTween:Play()
-moveTween:Play()
+    gyroTween:Play()
+    moveTween:Play()
 end
-
-partFunctionsMod.FlashParts = function(part)
-    -- parts flash between normal and kill parts
-    local curOrder = 1
-
-    while true do
-        for _, item in pairs(workspace.FlashParts:GetChildren()) do
-            if item:GetAttribute("Order") == curOrder then
-                item.Color = Color3.new(0.960784, 0.050980, 0.050980)
-                part.Touched:Connect(function(hit)
-                    local player, char = partFunctionsMod.playerFromHit(hit)
-                    if player and char.Humanoid.Health > 0 and dataMod.get(player, "EasyMode") == false then
-                        char.Humanoid.Health = 0
-                    end
-                end)
-            else
-                if item:GetAttribute("Order") == 1 then
-                    item.Color = Color3.new(1, 1, 1)
-                else
-                    item.Color = Color3.new(0.521568, 0.521568, 0.521568)
-                end
-            end
-        end
-
-        wait(2)
-
-        for _, item in pairs(workspace.FlashParts:GetChildren()) do
-            if item:GetAttribute("Order") == 1 then
-                item.Color = Color3.new(1, 1, 1)
-            else
-                item.Color = Color3.new(0.521568, 0.521568, 0.521568)
-            end
-        end
-
-        wait(2)
-
-        if curOrder == 1 then
-            curOrder = 2
-        else
-            curOrder = 1
-        end
-    end
-end
-
-
 
 for _, group in pairs(partGroups) do
     -- call the function with the same name as each folder and pass along

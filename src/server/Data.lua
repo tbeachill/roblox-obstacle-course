@@ -262,6 +262,14 @@ dataMod.save = function(player)
     end
 end
 
+replicatedStorage.EasyModeServerToggle.OnServerEvent:Connect(function(player)
+    if dataMod.get(player, "EasyMode") == true then
+        dataMod.set(player, "EasyMode", false)
+    else
+        dataMod.set(player, "EasyMode", true)
+    end
+end)
+
 dataMod.removeSessionData = function(player)
     -- remove a players data from sessionData
     local key = player.UserId
