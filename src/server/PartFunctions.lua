@@ -18,6 +18,7 @@ local partGroups = {
     workspace.ShopParts;
     workspace.MoveParts;
     workspace.SwingParts;
+    workspace.DisappearParts;
 }
 local items = {
     ["Spring Potion"] = {
@@ -213,6 +214,61 @@ partFunctionsMod.MoveParts = function(part)
 
     gyroTween:Play()
     moveTween:Play()
+end
+
+partFunctionsMod.DisappearParts = function(part)
+    -- parts flash between normal and kill parts
+    local curOrder = 1
+
+    while true do
+        for _, item in pairs(workspace.DisappearParts:GetChildren()) do
+            if item:GetAttribute("Order") == curOrder then
+                item.Color = Color3.new(0.960784, 0.050980, 0.050980)
+            end
+        end
+
+        wait(1.5)
+
+        for _, item in pairs(workspace.DisappearParts:GetChildren()) do
+            if item:GetAttribute("Order") == curOrder then
+                item.Color = Color3.new(0.960784, 0.050980, 0.050980)
+                item.CanCollide = false
+                item.Transparency = 1
+            else
+                if item:GetAttribute("Order") == 1 then
+                    item.Color = Color3.new(1, 1, 1)
+                    item.CanCollide = true
+                    item.Transparency = 0
+                else
+                    item.Color = Color3.new(0.521568, 0.521568, 0.521568)
+                    item.CanCollide = true
+                    item.Transparency = 0
+                end
+            end
+        end
+
+        wait(2)
+
+        for _, item in pairs(workspace.DisappearParts:GetChildren()) do
+            if item:GetAttribute("Order") == 1 then
+                item.Color = Color3.new(1, 1, 1)
+                item.CanCollide = true
+                item.Transparency = 0
+            else
+                item.Color = Color3.new(0.521568, 0.521568, 0.521568)
+                item.CanCollide = true
+                item.Transparency = 0
+            end
+        end
+
+        wait(2)
+
+        if curOrder == 1 then
+            curOrder = 2
+        else
+            curOrder = 1
+        end
+    end
 end
 
 for _, group in pairs(partGroups) do
