@@ -203,7 +203,7 @@ end)
 dataMod.set = function(player, stat, value, code)
     -- set [stat] for [player] to [value] in sessionData
     local key = player.UserId
-    print("PLAYER", player, "STAT", stat, "VALUE", value, "CODE", code)
+    
     if not code then
         sessionData[key][stat] = value
     else
@@ -243,8 +243,6 @@ end
 dataMod.get = function(player, stat)
     -- retrieve data from the sessionData table
     local key = player.UserId
-    print("KEY", key, "STAT", stat)
-    print("SD", sessionData)
     return sessionData[key][stat]
 end
 

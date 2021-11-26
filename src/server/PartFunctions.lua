@@ -106,10 +106,10 @@ partFunctionsMod.SpawnParts = function(part)
             -- show the replay button if at final stage
             if stage % 10 == 0 then
                 if stage == 100 then
-                    badgeService:AwardBadge(player.UserId, badges[stage])
+                    partFunctionsMod.awardBadge(player, stage)
                     player.PlayerGui.Gui.FinishedScreen.Enabled = true
                 else
-                    badgeService:AwardBadge(player.UserId, badges[stage])
+                    partFunctionsMod.awardBadge(player, stage)
                 end
             end
         else
@@ -146,22 +146,26 @@ partFunctionsMod.RewardParts = function(part)
     end)
 end
 
-partFunctionsMod.BadgeParts = function(part)
-    -- upon touching, check whether a player has the badge, if not, award the badge
-    local badgeId = part:GetAttribute("BadgeId")
-
-    part.Touched:Connect(function(hit)
-        local player = partFunctionsMod.playerFromHit(hit)
-
-        if player then
-            local key = player.UserId
-            local hasBadge = badgeService:UserHasBadgeAsync(key, badgeId)
-
-            if not hasBadge then
-                badgeService:AwardBadge(key, badgeId)
-            end
-        end
-    end)
+partFunctionsMod.awardBadge = function(player, stage)
+    local badgeId = badges[stage]
+	-- Fetch badge information
+	local success, badgeInfo = pcall(function()
+		return badgeService:GetBadgeInfoAsync(badgeId)
+	end)
+	if success then
+		-- Confirm that badge can be awarded
+		if badgeInfo.IsEnabled then
+			-- Award badge
+			local awarded, errorMessage = pcall(function()
+				badgeService:AwardBadge(player.UserId, badgeId)
+			end)
+			if not awarded then
+				warn("Error while awarding badge:", errorMessage)
+			end
+		end
+	else
+		warn("Error while fetching badge info!")
+	end
 end
 
 partFunctionsMod.PurchaseParts = function(part)
