@@ -20,6 +20,20 @@ local partGroups = {
     workspace.SwingParts;
     workspace.DisappearParts;
 }
+
+local badges = {
+    [10] = 2124867973,
+    [20] = 2124867974,
+    [30] = 2124867975,
+    [40] = 2124867976,
+    [50] = 2124867977,
+    [60] = 2124867978,
+    [70] = 2124867979,
+    [80] = 2124867980,
+    [90] = 2124867981,
+    [100] = 2124867982,
+}
+
 local items = {
     ["Spring Potion"] = {
         Price = 5;
@@ -90,8 +104,13 @@ partFunctionsMod.SpawnParts = function(part)
             dataMod.set(player, "StageDeaths", 0)
             
             -- show the replay button if at final stage
-            if stage == 100 then
-                player.PlayerGui.Gui.FinishedScreen.Enabled = true
+            if stage % 10 == 0 then
+                if stage == 100 then
+                    badgeService:AwardBadge(player.UserId, badges[stage])
+                    player.PlayerGui.Gui.FinishedScreen.Enabled = true
+                else
+                    badgeService:AwardBadge(player.UserId, badges[stage])
+                end
             end
         else
             if player and dataMod.get(player, "Stage") == stage + 1 then
