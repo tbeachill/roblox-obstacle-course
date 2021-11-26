@@ -356,10 +356,12 @@ playerService.PlayerAdded:Connect(function(player)
         wait(1)
         for _, gamePassId in pairs(gamePassTable) do
             if gamePassId == 25384030 then
-                if dataMod.get(player, "EasyMode") == false then
-                    replicatedStorage.EasyModeToggle:FireClient(player, "rbxassetid://8071468488")
-                else
-                    replicatedStorage.EasyModeToggle:FireClient(player, "rbxassetid://8071468630")
+                if checkGamePass(player, gamePassId) then
+                    if dataMod.get(player, "EasyMode") == false then
+                        replicatedStorage.EasyModeToggle:FireClient(player, "rbxassetid://8071468488")
+                    else
+                        replicatedStorage.EasyModeToggle:FireClient(player, "rbxassetid://8071468630")
+                    end
                 end
             else
                 checkGamePass(player, gamePassId)
