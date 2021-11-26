@@ -1,7 +1,7 @@
 local replicatedStorage = game:GetService("ReplicatedStorage")
 
 script.Parent.MouseButton1Click:Connect(function(player)
-    local promptId = 1217942198
+    local promptId = 1225857053
     replicatedStorage.Purchase:FireServer(promptId)
 end)
 
