@@ -235,6 +235,15 @@ partFunctionsMod.MoveParts = function(part)
         {Position = part.BodyPosition.Position + dirDict[part:GetAttribute("Direction")] }
     )
 
+    if part:GetAttribute("Kill") == true then
+        part.Touched:Connect(function(hit)
+            local player, char = partFunctionsMod.playerFromHit(hit)
+            if player and char.Humanoid.Health > 0 and dataMod.get(player, "EasyMode") == false then
+                char.Humanoid.Health = 0
+            end
+        end)
+    end
+
     gyroTween:Play()
     moveTween:Play()
 end

@@ -150,6 +150,7 @@ local partGroups = {
 	workspace.PurchaseParts;
 	workspace.ShopParts;
     workspace.MoveParts;
+    workspace.RotParts;
 }
 
 for _, group in pairs(partGroups) do

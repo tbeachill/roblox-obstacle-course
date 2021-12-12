@@ -174,7 +174,6 @@ playerService.PlayerAdded:Connect(function(player)
     player:LoadCharacter()
     playerService.CharacterAutoLoads = true
 
-    -- make accessories not able to touch red parts
     for _, item in pairs(player.Character:GetChildren()) do
         if item:IsA("Accessory") then
             for _, subItem in pairs(item:GetDescendants()) do
@@ -186,6 +185,18 @@ playerService.PlayerAdded:Connect(function(player)
     end
 
     player.CharacterAdded:Connect(function(character)
+                    -- make accessories not able to touch red parts
+        wait(2)
+        for _, item in pairs(player.Character:GetChildren()) do
+            if item:IsA("Accessory") then
+                for _, subItem in pairs(item:GetDescendants()) do
+                    if subItem:IsA("MeshPart") then
+                        subItem.CanTouch = false
+                    end
+                end
+            end
+        end
+
         -- Detect when a player dies and increase their death count
 		character:WaitForChild("Humanoid").Died:Connect(function()
 			dataMod.increment(player, "Deaths", 1)
@@ -196,7 +207,11 @@ playerService.PlayerAdded:Connect(function(player)
                 wait(2)
                 replicatedStorage.PromptSkip:FireClient(player)   
             end
+
+            
 		end)
+
+
     end)
 end)
 
