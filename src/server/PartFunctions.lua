@@ -269,6 +269,7 @@ partFunctionsMod.ShootParts = function(part)
         projectile.CFrame, projectile2.CFrame = part.CFrame + Vector3.new(0,-5,0), part.CFrame + Vector3.new(0,-5,0)
         projectile.CanCollide, projectile2.CanCollide = false, false
         projectile.Color, projectile2.Color = Color3.new(1,0,0), Color3.new(1,0,0)
+        projectile.Material, projectile2.Material = Enum.Material.Neon, Enum.Material.Neon
 
         local velocity, velocity2 = Instance.new("BodyVelocity"), Instance.new("BodyVelocity")
         velocity.P, velocity2.P = math.huge, math.huge
@@ -317,7 +318,7 @@ partFunctionsMod.DisappearParts = function(part)
     while true do
         for _, item in pairs(workspace.DisappearParts:GetChildren()) do
             if item:GetAttribute("Order") == curOrder then
-                item.Color = Color3.new(0.960784, 0.050980, 0.050980)
+                item.Color = Color3.new(1, 0.384313, 0.384313)
             end
         end
 
@@ -325,7 +326,7 @@ partFunctionsMod.DisappearParts = function(part)
 
         for _, item in pairs(workspace.DisappearParts:GetChildren()) do
             if item:GetAttribute("Order") == curOrder then
-                item.Color = Color3.new(0.960784, 0.050980, 0.050980)
+                item.Color = Color3.new(1, 0.384313, 0.384313)
                 item.CanCollide = false
                 item.Transparency = 1
             else
@@ -334,7 +335,7 @@ partFunctionsMod.DisappearParts = function(part)
                     item.CanCollide = true
                     item.Transparency = 0
                 else
-                    item.Color = Color3.new(0.521568, 0.521568, 0.521568)
+                    item.Color = Color3.new(0.890196, 0.654901, 1)
                     item.CanCollide = true
                     item.Transparency = 0
                 end
