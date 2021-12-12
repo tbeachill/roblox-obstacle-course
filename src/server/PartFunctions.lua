@@ -250,7 +250,7 @@ partFunctionsMod.MoveParts = function(part)
 end
 
 partFunctionsMod.ShootParts = function(part)
-    i  = 1
+    local i = 1
     local dirDict = {
         Vector3.new(0,0,200),
         Vector3.new(-200,0,200),
@@ -269,7 +269,7 @@ partFunctionsMod.ShootParts = function(part)
             projectile.Shape, projectile2.Shape = Enum.PartType.Ball, Enum.PartType.Ball
             projectile.CFrame, projectile2.CFrame = part.CFrame + Vector3.new(0,-5,0), part.CFrame + Vector3.new(0,-5,0)
             projectile.CanCollide, projectile2.CanCollide = false, false
-            projectile.Color, projectile2.Color = Color3.new(1,0,0), Color3.new(1,0,0)
+            projectile.Color, projectile2.Color = Color3.new(0.992156, 0.301960, 0.301960), Color3.new(0.992156, 0.301960, 0.301960)
             projectile.Material, projectile2.Material = Enum.Material.Neon, Enum.Material.Neon
 
             local velocity, velocity2 = Instance.new("BodyVelocity"), Instance.new("BodyVelocity")
@@ -371,8 +371,6 @@ partFunctionsMod.DisappearParts = function(part)
     end)
 end
 
-
-
 for _, group in pairs(partGroups) do
     -- call the function with the same name as each folder and pass along
     -- each part within that folder
@@ -389,7 +387,5 @@ for _, group in pairs(partGroups) do
         end
     end
 end
-
-
 
 return partFunctionsMod
