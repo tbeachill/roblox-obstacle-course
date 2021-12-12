@@ -262,76 +262,95 @@ partFunctionsMod.ShootParts = function(part)
         Vector3.new(200,0,200),
     }
 
-    while true do
-        local projectile, projectile2 = Instance.new("Part"), Instance.new("Part")
-        projectile.Parent, projectile2.Parent = workspace.ShootParts, workspace.ShootParts
-        projectile.Shape, projectile2.Shape = Enum.PartType.Ball, Enum.PartType.Ball
-        projectile.CFrame, projectile2.CFrame = part.CFrame + Vector3.new(0,-5,0), part.CFrame + Vector3.new(0,-5,0)
-        projectile.CanCollide, projectile2.CanCollide = false, false
-        projectile.Color, projectile2.Color = Color3.new(1,0,0), Color3.new(1,0,0)
-        projectile.Material, projectile2.Material = Enum.Material.Neon, Enum.Material.Neon
+    spawn(function()
+        while true do
+            local projectile, projectile2 = Instance.new("Part"), Instance.new("Part")
+            projectile.Parent, projectile2.Parent = workspace.ShootParts, workspace.ShootParts
+            projectile.Shape, projectile2.Shape = Enum.PartType.Ball, Enum.PartType.Ball
+            projectile.CFrame, projectile2.CFrame = part.CFrame + Vector3.new(0,-5,0), part.CFrame + Vector3.new(0,-5,0)
+            projectile.CanCollide, projectile2.CanCollide = false, false
+            projectile.Color, projectile2.Color = Color3.new(1,0,0), Color3.new(1,0,0)
+            projectile.Material, projectile2.Material = Enum.Material.Neon, Enum.Material.Neon
 
-        local velocity, velocity2 = Instance.new("BodyVelocity"), Instance.new("BodyVelocity")
-        velocity.P, velocity2.P = math.huge, math.huge
-        velocity.Parent, velocity2.Parent = projectile, projectile2
-        velocity.MaxForce, velocity2.MaxForce = Vector3.new(9999, 9999, 9999), Vector3.new(9999, 9999, 9999)
-        velocity.Velocity = Vector3.new(1,0,1) * dirDict[i]
-        velocity2.Velocity = Vector3.new(1,0,1) * dirDict[i+4]
-        
-        projectile.Touched:Connect(function(hit)
-            local player, char = partFunctionsMod.playerFromHit(hit)
-            if player and char.Humanoid.Health > 0 and dataMod.get(player, "EasyMode") == false and dataMod.get(player, "Stage") == 99 then
-                char.Humanoid.Health = 0
+            local velocity, velocity2 = Instance.new("BodyVelocity"), Instance.new("BodyVelocity")
+            velocity.P, velocity2.P = math.huge, math.huge
+            velocity.Parent, velocity2.Parent = projectile, projectile2
+            velocity.MaxForce, velocity2.MaxForce = Vector3.new(9999, 9999, 9999), Vector3.new(9999, 9999, 9999)
+            velocity.Velocity = Vector3.new(1,0,1) * dirDict[i]
+            velocity2.Velocity = Vector3.new(1,0,1) * dirDict[i+4]
+            
+            projectile.Touched:Connect(function(hit)
+                local player, char = partFunctionsMod.playerFromHit(hit)
+                if player and char.Humanoid.Health > 0 and dataMod.get(player, "EasyMode") == false and dataMod.get(player, "Stage") == 99 then
+                    char.Humanoid.Health = 0
+                end
+
+                if hit.Name == "Thin Flat Ring Mesh" then
+                    wait(0.05)
+                    projectile:Destroy()
+                end
+            end)
+
+            projectile2.Touched:Connect(function(hit)
+                local player, char = partFunctionsMod.playerFromHit(hit)
+                if player and char.Humanoid.Health > 0 and dataMod.get(player, "EasyMode") == false and dataMod.get(player, "Stage") == 99 then
+                    char.Humanoid.Health = 0
+                end
+
+                if hit.Name == "Thin Flat Ring Mesh" then
+                    wait(0.05)
+                    projectile2:Destroy()
+                end
+            end)
+
+            wait(0.5)
+            if i ~= 4 then
+                i = i + 1
+            else
+                i = 1
             end
-
-            if hit.Name == "Thin Flat Ring Mesh" then
-                wait(0.05)
-                projectile:Destroy()
-            end
-        end)
-
-        projectile2.Touched:Connect(function(hit)
-            local player, char = partFunctionsMod.playerFromHit(hit)
-            if player and char.Humanoid.Health > 0 and dataMod.get(player, "EasyMode") == false and dataMod.get(player, "Stage") == 99 then
-                char.Humanoid.Health = 0
-            end
-
-            if hit.Name == "Thin Flat Ring Mesh" then
-                wait(0.05)
-                projectile2:Destroy()
-            end
-        end)
-
-        wait(0.5)
-        if i ~= 4 then
-            i = i + 1
-        else
-            i = 1
         end
-    end
+    end)
 end
 
 partFunctionsMod.DisappearParts = function(part)
-    -- parts flash between normal and kill parts
-    local curOrder = 1
+    -- parts disappear and reappear
+    spawn(function()
 
-    while true do
-        for _, item in pairs(workspace.DisappearParts:GetChildren()) do
-            if item:GetAttribute("Order") == curOrder then
-                item.Color = Color3.new(1, 0.384313, 0.384313)
+        local curOrder = 1
+
+        while true do
+            for _, item in pairs(workspace.DisappearParts:GetChildren()) do
+                if item:GetAttribute("Order") == curOrder then
+                    item.Color = Color3.new(1, 0.384313, 0.384313)
+                end
             end
-        end
 
-        wait(1.5)
+            wait(1.5)
 
-        for _, item in pairs(workspace.DisappearParts:GetChildren()) do
-            if item:GetAttribute("Order") == curOrder then
-                item.Color = Color3.new(1, 0.384313, 0.384313)
-                item.CanCollide = false
-                item.Transparency = 1
-            else
+            for _, item in pairs(workspace.DisappearParts:GetChildren()) do
+                if item:GetAttribute("Order") == curOrder then
+                    item.Color = Color3.new(1, 0.384313, 0.384313)
+                    item.CanCollide = false
+                    item.Transparency = 1
+                else
+                    if item:GetAttribute("Order") == 1 then
+                        item.Color = Color3.new(0.564705, 0.949019, 1)
+                        item.CanCollide = true
+                        item.Transparency = 0
+                    else
+                        item.Color = Color3.new(0.890196, 0.654901, 1)
+                        item.CanCollide = true
+                        item.Transparency = 0
+                    end
+                end
+            end
+
+            wait(2)
+
+            for _, item in pairs(workspace.DisappearParts:GetChildren()) do
                 if item:GetAttribute("Order") == 1 then
-                    item.Color = Color3.new(1, 1, 1)
+                    item.Color = Color3.new(0.564705, 0.949019, 1)
                     item.CanCollide = true
                     item.Transparency = 0
                 else
@@ -340,30 +359,16 @@ partFunctionsMod.DisappearParts = function(part)
                     item.Transparency = 0
                 end
             end
-        end
 
-        wait(2)
+            wait(2)
 
-        for _, item in pairs(workspace.DisappearParts:GetChildren()) do
-            if item:GetAttribute("Order") == 1 then
-                item.Color = Color3.new(1, 1, 1)
-                item.CanCollide = true
-                item.Transparency = 0
+            if curOrder == 1 then
+                curOrder = 2
             else
-                item.Color = Color3.new(0.521568, 0.521568, 0.521568)
-                item.CanCollide = true
-                item.Transparency = 0
+                curOrder = 1
             end
         end
-
-        wait(2)
-
-        if curOrder == 1 then
-            curOrder = 2
-        else
-            curOrder = 1
-        end
-    end
+    end)
 end
 
 
