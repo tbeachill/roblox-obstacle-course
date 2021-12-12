@@ -18,6 +18,7 @@ local partGroups = {
     workspace.ShopParts;
     workspace.MoveParts;
     workspace.SwingParts;
+    workspace.ShootParts;
     workspace.DisappearParts;
 }
 
@@ -248,6 +249,67 @@ partFunctionsMod.MoveParts = function(part)
     moveTween:Play()
 end
 
+partFunctionsMod.ShootParts = function(part)
+    i  = 1
+    local dirDict = {
+        Vector3.new(0,0,200),
+        Vector3.new(-200,0,200),
+        Vector3.new(-200,0,00),
+        Vector3.new(-200,0,-200),
+        Vector3.new(0,0,-200),
+        Vector3.new(200,0,-200),
+        Vector3.new(200,0,0),
+        Vector3.new(200,0,200),
+    }
+
+    while true do
+        local projectile, projectile2 = Instance.new("Part"), Instance.new("Part")
+        projectile.Parent, projectile2.Parent = workspace.ShootParts, workspace.ShootParts
+        projectile.Shape, projectile2.Shape = Enum.PartType.Ball, Enum.PartType.Ball
+        projectile.CFrame, projectile2.CFrame = part.CFrame + Vector3.new(0,-5,0), part.CFrame + Vector3.new(0,-5,0)
+        projectile.CanCollide, projectile2.CanCollide = false, false
+        projectile.Color, projectile2.Color = Color3.new(1,0,0), Color3.new(1,0,0)
+
+        local velocity, velocity2 = Instance.new("BodyVelocity"), Instance.new("BodyVelocity")
+        velocity.P, velocity2.P = math.huge, math.huge
+        velocity.Parent, velocity2.Parent = projectile, projectile2
+        velocity.MaxForce, velocity2.MaxForce = Vector3.new(9999, 9999, 9999), Vector3.new(9999, 9999, 9999)
+        velocity.Velocity = Vector3.new(1,0,1) * dirDict[i]
+        velocity2.Velocity = Vector3.new(1,0,1) * dirDict[i+4]
+        
+        projectile.Touched:Connect(function(hit)
+            local player, char = partFunctionsMod.playerFromHit(hit)
+            if player and char.Humanoid.Health > 0 and dataMod.get(player, "EasyMode") == false and dataMod.get(player, "Stage") == 99 then
+                char.Humanoid.Health = 0
+            end
+
+            if hit.Name == "Thin Flat Ring Mesh" then
+                wait(0.05)
+                projectile:Destroy()
+            end
+        end)
+
+        projectile2.Touched:Connect(function(hit)
+            local player, char = partFunctionsMod.playerFromHit(hit)
+            if player and char.Humanoid.Health > 0 and dataMod.get(player, "EasyMode") == false and dataMod.get(player, "Stage") == 99 then
+                char.Humanoid.Health = 0
+            end
+
+            if hit.Name == "Thin Flat Ring Mesh" then
+                wait(0.05)
+                projectile2:Destroy()
+            end
+        end)
+
+        wait(0.5)
+        if i ~= 4 then
+            i = i + 1
+        else
+            i = 1
+        end
+    end
+end
+
 partFunctionsMod.DisappearParts = function(part)
     -- parts flash between normal and kill parts
     local curOrder = 1
@@ -303,9 +365,12 @@ partFunctionsMod.DisappearParts = function(part)
     end
 end
 
+
+
 for _, group in pairs(partGroups) do
     -- call the function with the same name as each folder and pass along
     -- each part within that folder
+    print(group)
     for _, part in pairs(group:GetChildren()) do
         if part:IsA("BasePart") then
             partFunctionsMod[group.Name](part)
