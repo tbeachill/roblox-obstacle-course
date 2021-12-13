@@ -92,25 +92,26 @@ partFunctionsMod.SpawnParts = function(part)
     part.Touched:Connect(function(hit)
     local player, char = partFunctionsMod.playerFromHit(hit)
         if player and dataMod.get(player, "Stage") == stage - 1 then
-            dataMod.set(player, "Stage", stage)
-            replicatedStorage.Effect:FireClient(player, part)
+            if char:FindFirstChildOfClass("Humanoid"):GetState() ~= Enum.HumanoidStateType.Dead then
+                dataMod.set(player, "Stage", stage)
+                replicatedStorage.Effect:FireClient(player, part)
 
-            -- set the spawn location of the player to the checkpoint
-            local humanoid = char:FindFirstChildOfClass("Humanoid")
-            if humanoid and humanoid:GetState() ~= Enum.HumanoidStateType.Dead then
-                player.RespawnLocation = part
-            end
+                -- set the spawn location of the player to the checkpoint
+                if char:FindFirstChildOfClass("Humanoid") then
+                    player.RespawnLocation = part
+                end
 
-            -- set the number of deaths on the stage to 0
-            dataMod.set(player, "StageDeaths", 0)
-            
-            -- show the replay button if at final stage
-            if stage % 10 == 0 then
-                if stage == 100 then
-                    partFunctionsMod.awardBadge(player, stage)
-                    player.PlayerGui.Gui.FinishedScreen.Enabled = true
-                else
-                    partFunctionsMod.awardBadge(player, stage)
+                -- set the number of deaths on the stage to 0
+                dataMod.set(player, "StageDeaths", 0)
+                
+                -- show the replay button if at final stage
+                if stage % 10 == 0 then
+                    if stage == 100 then
+                        partFunctionsMod.awardBadge(player, stage)
+                        player.PlayerGui.Gui.FinishedScreen.Enabled = true
+                    else
+                        partFunctionsMod.awardBadge(player, stage)
+                    end
                 end
             end
         else
