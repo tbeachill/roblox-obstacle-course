@@ -20,6 +20,7 @@ local partGroups = {
     workspace.SwingParts;
     workspace.ShootParts;
     workspace.DisappearParts;
+    workspace.PianoParts;
 }
 
 local badges = {
@@ -369,6 +370,15 @@ partFunctionsMod.DisappearParts = function(part)
                 curOrder = 1
             end
         end
+    end)
+end
+
+partFunctionsMod.PianoParts = function(part)
+    -- when a player touches a piano key, play a note
+    part.Touched:Connect(function(hit)
+        local player, char = partFunctionsMod.playerFromHit(hit)
+        local touchNote = part:GetAttribute("Note")
+        replicatedStorage.PianoNote:FireClient(player, touchNote)
     end)
 end
 
