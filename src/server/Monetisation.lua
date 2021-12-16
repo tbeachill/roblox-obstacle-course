@@ -231,11 +231,13 @@ monetisationMod[25384019] = function(player)
     dataMod.set(player, "DoubleJump", true)
 end
 
-
 monetisationMod[25384030] = function(player)
     -- easy mode
-    dataMod.set(player, "EasyMode", true)
-    replicatedStorage.EasyModeToggle:FireClient(player)
+    if dataMod.get(player, "EasyMode") == false then
+        replicatedStorage.EasyModeToggle:FireClient(player, "rbxassetid://8071468488")
+    else
+        replicatedStorage.EasyModeToggle:FireClient(player, "rbxassetid://8071468630")
+    end
 end
 
 monetisationMod[25384046] = function(player)
@@ -345,31 +347,18 @@ local gamePassTable = {
     25384070;    -- vip
 }
 
-
 playerService.PlayerAdded:Connect(function(player)
     wait(1)
     for _, gamePassId in pairs(gamePassTable) do
         checkGamePass(player, gamePassId)
-    end
+    end  
 
     player.CharacterAdded:Connect(function(character)
         wait(1)
         for _, gamePassId in pairs(gamePassTable) do
-            if gamePassId == 25384030 then
-                if checkGamePass(player, gamePassId) then
-                    if dataMod.get(player, "EasyMode") == false then
-                        replicatedStorage.EasyModeToggle:FireClient(player, "rbxassetid://8071468488")
-                    else
-                        replicatedStorage.EasyModeToggle:FireClient(player, "rbxassetid://8071468630")
-                    end
-                end
-            else
-                checkGamePass(player, gamePassId)
-            end
+            checkGamePass(player, gamePassId)
         end
     end)
 end)
-
-
 
 return monetisationMod
