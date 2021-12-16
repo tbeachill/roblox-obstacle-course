@@ -3,7 +3,7 @@
 local playerService = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local dataService = game:GetService("DataStoreService")     -- used to save data to Roblox servers
-local store = dataService:GetDataStore("DataStoreV1_74")   -- create a new GlobalDataStore instance, this is persistent with the key
+local store = dataService:GetDataStore("DataStoreV1_2")   -- create a new GlobalDataStore instance, this is persistent with the key
 
 local sessionData = {}  -- holds a dictionary containing data on current players with UserIds as indices
 local dataMod = {}
@@ -67,6 +67,7 @@ end
 dataMod.setupData = function(player)
     -- loads stored data for a player
     local key = player.UserId   -- set key to the players user id
+    
     local data = dataMod.load(player)   -- load the data for that player
 
     sessionData[key] = dataMod.recursiveCopy(defaultData)   -- create a copy of the default values table
@@ -84,6 +85,7 @@ end
 
 playerService.PlayerAdded:Connect(function(player)
     -- calls setupData new player joins the game
+    
     local folder = Instance.new("Folder")   -- use the leaderstats system to display
     folder.Name = "leaderstats"             -- the players current stats
     folder.Parent = player
@@ -140,7 +142,7 @@ playerService.PlayerAdded:Connect(function(player)
     doubleJump.Name = "DoubleJump"
     doubleJump.Parent = hiddenData
     doubleJump.Value = defaultData.DoubleJump
-
+    
     local coinTags = Instance.new("Folder")
     coinTags.Name = "CoinTags"
     coinTags.Parent = hiddenData
@@ -151,9 +153,8 @@ playerService.PlayerAdded:Connect(function(player)
         coin.Parent = coinTags
         coin.Value = defaultData.CoinTags[k]
     end
-
+    
     dataMod.setupData(player)   -- load stored data
-
     -- set up spawn location for a player based on their current stage
     local playerStage = dataMod.get(player, "Stage")
     if playerStage then
@@ -173,7 +174,6 @@ playerService.PlayerAdded:Connect(function(player)
     player:LoadCharacter()
     playerService.CharacterAutoLoads = true
 
-    -- make accessories not able to touch red parts
     for _, item in pairs(player.Character:GetChildren()) do
         if item:IsA("Accessory") then
             for _, subItem in pairs(item:GetDescendants()) do
@@ -185,6 +185,18 @@ playerService.PlayerAdded:Connect(function(player)
     end
 
     player.CharacterAdded:Connect(function(character)
+                    -- make accessories not able to touch red parts
+        wait(2)
+        for _, item in pairs(player.Character:GetChildren()) do
+            if item:IsA("Accessory") then
+                for _, subItem in pairs(item:GetDescendants()) do
+                    if subItem:IsA("MeshPart") then
+                        subItem.CanTouch = false
+                    end
+                end
+            end
+        end
+
         -- Detect when a player dies and increase their death count
 		character:WaitForChild("Humanoid").Died:Connect(function()
 			dataMod.increment(player, "Deaths", 1)
@@ -195,14 +207,18 @@ playerService.PlayerAdded:Connect(function(player)
                 wait(2)
                 replicatedStorage.PromptSkip:FireClient(player)   
             end
+
+            
 		end)
+
+
     end)
 end)
 
 dataMod.set = function(player, stat, value, code)
     -- set [stat] for [player] to [value] in sessionData
     local key = player.UserId
-    print("PLAYER", player, "STAT", stat, "VALUE", value, "CODE", code)
+    
     if not code then
         sessionData[key][stat] = value
     else

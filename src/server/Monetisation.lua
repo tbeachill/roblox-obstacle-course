@@ -174,13 +174,13 @@ monetisationMod.giveTool = function(player, itemName)
     tool.Parent = player.Backpack
 end
 
-monetisationMod[1217899753] = function(player)
+monetisationMod[1225856998] = function(player)
     -- 50 coins
     dataMod.increment(player, "Coins", 50)
     replicatedStorage.ClosePrompt:FireClient(player)
 end
 
-monetisationMod[1217942198] = function(player)
+monetisationMod[1225857053] = function(player)
     -- skip stage
     dataMod.increment(player, "Stage", 1)
     local newStage = dataMod.get(player, "Stage")
@@ -201,7 +201,7 @@ monetisationMod[1217942198] = function(player)
     end
 end
 
-monetisationMod[1223592115] = function(player)
+monetisationMod[1225857033] = function(player)
     -- replay
     dataMod.set(player, "Stage", 1)
     dataMod.set(player, "StageDeaths", 0)
@@ -221,44 +221,46 @@ monetisationMod[1223592115] = function(player)
 end
 
 -- game passes
-monetisationMod[25148318] = function(player)
+monetisationMod[25384011] = function(player)
     -- double coins
     dataMod.set(player, "CoinMultiplier", 2)
 end
 
-monetisationMod[25225319] = function(player)
+monetisationMod[25384019] = function(player)
     -- double jump
     dataMod.set(player, "DoubleJump", true)
 end
 
-
-monetisationMod[25148457] = function(player)
+monetisationMod[25384030] = function(player)
     -- easy mode
-    dataMod.set(player, "EasyMode", true)
-    replicatedStorage.EasyModeToggle:FireClient(player)
+    if dataMod.get(player, "EasyMode") == false then
+        replicatedStorage.EasyModeToggle:FireClient(player, "rbxassetid://8071468488")
+    else
+        replicatedStorage.EasyModeToggle:FireClient(player, "rbxassetid://8071468630")
+    end
 end
 
-monetisationMod[25148694] = function(player)
+monetisationMod[25384046] = function(player)
     -- flying carpet
     monetisationMod.giveTool(player, "Flying Carpet")
 end
 
-monetisationMod[25148786] = function(player)
+monetisationMod[25384051] = function(player)
     -- gravity coil
     monetisationMod.giveTool(player, "Gravity Coil")
 end
 
-monetisationMod[25148946] = function(player)
+monetisationMod[25384057] = function(player)
     -- radio
     monetisationMod.giveTool(player, "Radio")
 end
 
-monetisationMod[25148838] = function(player)
+monetisationMod[25384062] = function(player)
     -- speed coil
     monetisationMod.giveTool(player, "Speed Coil")
 end
 
-monetisationMod[25148583] = function(player)
+monetisationMod[25384070] = function(player)
     -- VIP
     dataMod.set(player, "VIP", true)
     replicatedStorage.VIPTeleport:FireClient(player)
@@ -335,39 +337,28 @@ replicatedStorage.Teleport.OnServerEvent:Connect(function(player, toVip)
 end)
 
 local gamePassTable = {
-    25148318;    -- double coins
-    25225319;    -- double jump
-    25148457;    -- easy mode
-    25148694;    -- flying carpet
-    25148786;    -- gravity coil
-    25148946;    -- radio
-    25148838;    -- speed coil
-    25148583;    -- vip
+    25384011;    -- double coins
+    25384019;    -- double jump
+    25384030;    -- easy mode
+    25384046;    -- flying carpet
+    25384051;    -- gravity coil
+    25384057;    -- radio
+    25384062;    -- speed coil
+    25384070;    -- vip
 }
-
 
 playerService.PlayerAdded:Connect(function(player)
     wait(1)
     for _, gamePassId in pairs(gamePassTable) do
         checkGamePass(player, gamePassId)
-    end
+    end  
 
     player.CharacterAdded:Connect(function(character)
         wait(1)
         for _, gamePassId in pairs(gamePassTable) do
-            if gamePassId == 25148457 then
-                if dataMod.get(player, "EasyMode") == false then
-                    replicatedStorage.EasyModeToggle:FireClient(player, "rbxassetid://8071468488")
-                else
-                    replicatedStorage.EasyModeToggle:FireClient(player, "rbxassetid://8071468630")
-                end
-            else
-                checkGamePass(player, gamePassId)
-            end
+            checkGamePass(player, gamePassId)
         end
     end)
 end)
-
-
 
 return monetisationMod
