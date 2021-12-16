@@ -10,6 +10,7 @@ local dataMod = require(script.Parent.Data)
 local partFunctionsMod = {}
 local partGroups = {
     workspace.KillParts;
+    workspace.AlwaysKillParts;
     workspace.DamageParts;
     workspace.SpawnParts;
     workspace.RewardParts;
@@ -58,6 +59,16 @@ partFunctionsMod.KillParts = function(part)
     part.Touched:Connect(function(hit)
         local player, char = partFunctionsMod.playerFromHit(hit)
         if player and char.Humanoid.Health > 0 and dataMod.get(player, "EasyMode") == false then
+            char.Humanoid.Health = 0
+        end
+    end)
+end
+
+partFunctionsMod.AlwaysKillParts = function(part)
+    -- if a player touches the part, kill the player
+    part.Touched:Connect(function(hit)
+        local player, char = partFunctionsMod.playerFromHit(hit)
+        if player and char.Humanoid.Health > 0 then
             char.Humanoid.Health = 0
         end
     end)
