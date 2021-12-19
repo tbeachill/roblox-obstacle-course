@@ -3,7 +3,7 @@ An obstacle course created for the metaverse "Roblox".
 
 ## Directories
 ### Client
- - `BackgroundMusic.lua` contains the code for playing background music.
+ - `Sound.lua` contains the code for playing sounds.
  - `DoubleJump.client.lua` contains the code for double jumping.
  - `Effects.lua` module that contains visual and audio effects.
  - `init.client.lua` loads the module scripts.
@@ -15,6 +15,7 @@ An obstacle course created for the metaverse "Roblox".
  - `Monetisation.lua` module for the in-game shop.
  - `PartFunctions.lua` module to control the behaviour of named groups of parts.
  - `Physics.lua` sets up the physical interactions within the game.
+ - `VIPArea.lua` contains code for interactions in the VIP area.
  - `init.server.lua` Loads each of the server modules.
 
 ### Shared
