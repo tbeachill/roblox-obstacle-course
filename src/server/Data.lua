@@ -60,7 +60,6 @@ dataMod.load = function(player)
         data = dataMod.load(player)
     end
 
-    --local data = nil
     return data
 end
 
@@ -166,7 +165,7 @@ playerService.PlayerAdded:Connect(function(player)
     else
         player.RespawnLocation = workspace.SpawnParts.Stage1
     end
-
+    
     local collectedCoins = dataMod.get(player, "CoinTags")
     replicatedStorage.CoinTransparency:FireClient(player, collectedCoins)
 
@@ -207,11 +206,7 @@ playerService.PlayerAdded:Connect(function(player)
                 wait(2)
                 replicatedStorage.PromptSkip:FireClient(player)   
             end
-
-            
 		end)
-
-
     end)
 end)
 
