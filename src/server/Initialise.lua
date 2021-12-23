@@ -1,41 +1,64 @@
--- general tasks that are not specific to a system to run upon player spawn
-
+-- tasks to run upon player spawn
 local playerService = game:GetService("Players")
-local collectionService = game:GetService("CollectionService")
 local marketService = game:GetService("MarketplaceService")
-local monetisation = require(script.Parent.Monetisation)
+local monetisationMod = require(script.Parent.Monetisation)
 local dataMod = require(script.Parent.Data)
 local spawnParts = workspace.SpawnParts
 local initialiseMod = {}
-local toolPasses = {000000}
+local gamePassTable = {
+    25384011;    -- double coins
+    25384019;    -- double jump
+    25384030;    -- easy mode
+    25384046;    -- flying carpet
+    25384051;    -- gravity coil
+    25384057;    -- radio
+    25384062;    -- speed coil
+    25384070;    -- vip
+}
 
-local function getStage(stageNum)
-    -- return the corresponding part for a stage spawn point that is specified as an argument
-    for _, stagePart in pairs(spawnParts:GetChildren()) do
-        if stagePart.Stage.Value == stageNum then
-            return stagePart
-        end
-    end
+local function checkGamePass(player, gamePassId)
+    -- check if a player owns a gamepass
+	local hasPass = false
+ 
+	-- Check if the player already owns the game pass
+	local success, message = pcall(function()
+		hasPass = marketService:UserOwnsGamePassAsync(player.UserId, gamePassId)
+	end)
+ 
+	if not success then
+		warn("Error while checking if player has pass: " .. tostring(message))
+		return
+	end
+ 
+	if hasPass == true then
+		print(player.Name .. " owns the game pass with ID " .. gamePassId)
+		-- Assign this player the ability or bonus related to the game pass
+		monetisationMod[gamePassId](player)
+	end
 end
 
 playerService.PlayerAdded:Connect(function(player)
-    -- set the CFrame of the character to the CFrame of the spawn point, with an offset
     player.CharacterAdded:Connect(function(char)
-        local stageNum = dataMod.get(player, "Stage")
-        local spawnPoint = getStage(stageNum)
-        char:SetPrimaryPartCFrame(spawnPoint.CFrame * CFrame.new(0, 3, 0))
-
-        initialiseMod.givePremiumTools = function(player)
-            -- check if player owns gamepass
-            for _, ID in pairs(toolPasses) do
-                local key = player.UserId
-                local ownsPass = marketService:UserOwnsGamePassAsync(key, ID)
-                local hasTag = collectionService:HasTag(player, ID)
-
-                if hasTag or ownsPass then
-                    monetisation[ID](player)
-                end
-            end
+        wait(1)
+        -- check players game passes
+        for _, gamePassId in pairs(gamePassTable) do
+            checkGamePass(player, gamePassId)
         end
+
+        -- give a player a pet or trail if they own one
+        local itemName = dataMod.get(player, "EquippedTrail")
+
+        if itemName ~= "" then
+            monetisationMod.giveTrail(player, itemName)
+        end
+
+        local itemName = dataMod.get(player, "EquippedPet")
+
+        if itemName ~= "" then
+            monetisationMod.givePet(player, itemName)
+        end
+
     end)
 end)
+
+return initialiseMod

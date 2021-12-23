@@ -3,7 +3,7 @@ An obstacle course created for the metaverse "Roblox".
 
 ## Directories
 ### Client
- - `Sound.lua` contains the code for playing sounds.
+ - `Sound.client.lua` contains the code for playing sounds.
  - `DoubleJump.client.lua` contains the code for double jumping.
  - `Effects.lua` module that contains visual and audio effects.
  - `init.client.lua` loads the module scripts.

@@ -83,7 +83,6 @@ effectsMod.SpawnParts = function(part)
     stageText.StageNumber.Text = part:GetAttribute("Stage")
     tween:Play()
     
-
     delay(2.5, function()
         part.Material = Enum.Material.SmoothPlastic
         stageText.StageNumber.TextTransparency = 100
@@ -183,6 +182,5 @@ runService.RenderStepped:Connect(function(dt)
 		part.CFrame = part.CFrame * rot
 	end
 end)
-
 
 return effectsMod

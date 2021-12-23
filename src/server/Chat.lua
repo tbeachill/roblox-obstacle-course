@@ -1,5 +1,4 @@
 -- chat functions
-
 local chatService = require(game:GetService('ServerScriptService'):WaitForChild('ChatServiceRunner').ChatService)
 
 chatMod = {}

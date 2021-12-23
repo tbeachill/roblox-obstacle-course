@@ -1,5 +1,4 @@
 -- monetisation functions
-
 local playerService = game:GetService("Players")
 local dataService = game:GetService("DataStoreService")
 local collectionService = game:GetService("CollectionService")
@@ -135,27 +134,6 @@ replicatedStorage.CoinPurchase.OnServerEvent:Connect(function(player, itemName)
     else
         replicatedStorage.NotEnoughCoins:FireClient(player)
     end
-end)
-
-playerService.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function(character)
-        -- Check pet and trail status and equip
-        local shopFolder = replicatedStorage.Common.ShopItems
-        local char = player.Character 
-        local itemName = dataMod.get(player, "EquippedTrail")
-
-        if itemName ~= "" then
-            wait(2)
-            monetisationMod.giveTrail(player, itemName)
-        end
-
-        local itemName = dataMod.get(player, "EquippedPet")
-
-        if itemName ~= "" then
-            wait(2)
-            monetisationMod.givePet(player, itemName)
-        end
-    end)
 end)
 
 monetisationMod.insertTool = function(player, assetId)
@@ -302,27 +280,6 @@ marketService.PromptProductPurchaseFinished:Connect(function(playerId, productId
     end
 end)
 
-local function checkGamePass(player, gamePassId)
-    -- check if a player owns a gamepass
-	local hasPass = false
- 
-	-- Check if the player already owns the game pass
-	local success, message = pcall(function()
-		hasPass = marketService:UserOwnsGamePassAsync(player.UserId, gamePassId)
-	end)
- 
-	if not success then
-		warn("Error while checking if player has pass: " .. tostring(message))
-		return
-	end
- 
-	if hasPass == true then
-		print(player.Name .. " owns the game pass with ID " .. gamePassId)
-		-- Assign this player the ability or bonus related to the game pass
-		monetisationMod[gamePassId](player)
-	end
-end
-
 replicatedStorage.Teleport.OnServerEvent:Connect(function(player, toVip)
     if toVip == true then
         player.character:MoveTo(workspace.VIPSpawn.Position)
@@ -334,31 +291,6 @@ replicatedStorage.Teleport.OnServerEvent:Connect(function(player, toVip)
             end
         end
     end
-end)
-
-local gamePassTable = {
-    25384011;    -- double coins
-    25384019;    -- double jump
-    25384030;    -- easy mode
-    25384046;    -- flying carpet
-    25384051;    -- gravity coil
-    25384057;    -- radio
-    25384062;    -- speed coil
-    25384070;    -- vip
-}
-
-playerService.PlayerAdded:Connect(function(player)
-    wait(1)
-    for _, gamePassId in pairs(gamePassTable) do
-        checkGamePass(player, gamePassId)
-    end  
-
-    player.CharacterAdded:Connect(function(character)
-        wait(1)
-        for _, gamePassId in pairs(gamePassTable) do
-            checkGamePass(player, gamePassId)
-        end
-    end)
 end)
 
 return monetisationMod
