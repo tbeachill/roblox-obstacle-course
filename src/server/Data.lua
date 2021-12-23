@@ -1,10 +1,8 @@
 -- game data functions
-
 local playerService = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local dataService = game:GetService("DataStoreService")     -- used to save data to Roblox servers
 local store = dataService:GetDataStore("DataStoreV1_2")   -- create a new GlobalDataStore instance, this is persistent with the key
-
 local sessionData = {}  -- holds a dictionary containing data on current players with UserIds as indices
 local dataMod = {}
 local AUTOSAVE_INTERVAL = 120
@@ -184,7 +182,7 @@ playerService.PlayerAdded:Connect(function(player)
     end
 
     player.CharacterAdded:Connect(function(character)
-                    -- make accessories not able to touch red parts
+        -- make accessories not able to touch red parts
         wait(2)
         for _, item in pairs(player.Character:GetChildren()) do
             if item:IsA("Accessory") then

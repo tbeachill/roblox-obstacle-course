@@ -9,12 +9,3 @@ replicatedStorage.PianoNote.OnClientEvent:Connect(function(touchNote)
         end
     end
 end)
-
---[[
-while true do
-    for _, sound in pairs(backgroundMusic:GetChildren()) do
-        sound:Play()
-        sound.Ended:Wait()
-    end
-end
-]]

@@ -1,6 +1,8 @@
+-- functions specific to the VIP area
 local VIPMod = {}
 
 VIPMod.click = function()
+    -- mystery button functions
     workspace.VIP.Button.ClickDetector.MaxActivationDistance = 0
     workspace.VIP.Button.Color = Color3.new(1, 1, 1)
     local x = math.random(5)

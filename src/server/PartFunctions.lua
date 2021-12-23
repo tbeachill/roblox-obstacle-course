@@ -1,5 +1,4 @@
 -- functions specific to certain parts within the game
-
 local playerService = game:GetService("Players")
 local badgeService = game:GetService("BadgeService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
@@ -42,8 +41,6 @@ local items = {
         Price = 5;
     };
 }
-
-local uniqueCode = 0
 
 partFunctionsMod.playerFromHit = function(hit)
     -- takes a single BasePart as an argument and sees if it's a descendent of a player char
@@ -240,7 +237,7 @@ partFunctionsMod.MoveParts = function(part)
         ["L"] = Vector3.new(0,0,moveDis),
         ["R"] = Vector3.new(0,0,-moveDis),
         ["U"] = Vector3.new(0,moveDis,0),
-        ["D"] = Vector3.new(0,-moveDis,0), 
+        ["D"] = Vector3.new(0,-moveDis,0),
     }
     
     local moveTween = TweenService:Create(

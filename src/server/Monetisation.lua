@@ -1,5 +1,4 @@
 -- monetisation functions
-
 local playerService = game:GetService("Players")
 local dataService = game:GetService("DataStoreService")
 local collectionService = game:GetService("CollectionService")
