@@ -65,8 +65,18 @@ partFunctionsMod.AlwaysKillParts = function(part)
     -- if a player touches the part, kill the player
     part.Touched:Connect(function(hit)
         local player, char = partFunctionsMod.playerFromHit(hit)
+        local cankill = true
+
         if player and char.Humanoid.Health > 0 then
-            char.Humanoid.Health = 0
+            for _, a in pairs(char:GetChildren()) do
+                if a.Name == "Flying Carpet" then
+                    cankill = false
+                end
+            end
+
+            if cankill then
+                char.Humanoid.Health = 0
+            end
         end
     end)
 end
